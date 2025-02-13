@@ -3,3 +3,4 @@ set(MAIN_SOURCES
 )
 
 add_executable(gbemu ${HEADERS} ${MAIN_SOURCES})
+target_link_libraries(gbemu PUBLIC emu)

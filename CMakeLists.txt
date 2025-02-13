@@ -4,3 +4,4 @@ project(gbemu C)
 set(CMAKE_C_STANDARD 23)
 
 add_subdirectory(gbemu)
+add_subdirectory(lib)
