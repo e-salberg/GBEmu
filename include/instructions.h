@@ -22,8 +22,19 @@ typedef enum {
 
 typedef enum {
     AM_IMPLIED,
-    AM_R8_R8,
-    AM_IMM16
+    AM_IMM16,
+    AM_R_R,
+    AM_R_IMM16,
+    AM_R_IMM8,
+    AM_R_MEMR,
+    AM_MEMR_R,
+    AM_MEMR_IMM8,
+    AM_A16_R,
+    AM_R_A16,
+    AM_HLI_R,
+    AM_HLD_R,
+    AM_R_HLI,
+    AM_R_HLD,
 } addr_mode;
 
 typedef enum {

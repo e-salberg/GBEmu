@@ -41,10 +41,13 @@ void write_bus(uint16_t address, uint8_t value)
 
 uint16_t read16_bus(uint16_t address)
 {
-
+    uint16_t lo = read_bus(address);
+    uint16_t hi = read_bus(address + 1);
+    return (hi << 8) | lo;
 }
 
 void write16_bus(uint16_t address, uint16_t value)
 {
-
+    write_bus(address + 1, (value & 0xFF00) >> 8);
+    write_bus(address, value & 0xFF); 
 }

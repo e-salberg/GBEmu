@@ -23,6 +23,8 @@ typedef struct
     uint8_t current_opcode;
     instruction *current_instruction;
     uint16_t fetched_data;
+    uint16_t dest_in_memory;
+    bool is_dest_memory;
 } cpu_context;
 
 void cpu_init();
