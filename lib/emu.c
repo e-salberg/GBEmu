@@ -1,8 +1,15 @@
 #include <cartridge.h>
+#include <cpu.h>
 #include <emu.h>
 #include <stdlib.h>
 #include <stdio.h>
 
+static emu_context ctx;
+
+emu_context *emu_get_context() 
+{
+    return &ctx;
+}
 
 int emu_run(int argc, char **argv) 
 {
@@ -19,6 +26,32 @@ int emu_run(int argc, char **argv)
     }
     printf("Cartridge loaded..\n");
 
+    cpu_init();
+    ctx.running = true;
+    ctx.paused = false;
+    ctx.ticks = 0;
+    
+    while (ctx.running)
+    {
+        if (ctx.paused)
+        {
+            // wait or something?
+            continue;
+        }
+
+        if(!cpu_step())
+        {
+            printf("CPU Stopped\n");
+            return 0;
+        }
+        ctx.ticks++;
+    }
+
     free_cartridge();
     return 0;
+}
+
+void emu_cycles(int cpu_cycles)
+{
+
 }

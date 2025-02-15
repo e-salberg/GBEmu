@@ -354,3 +354,13 @@ void free_cartridge()
 {
     free(ctx.rom_data);
 }
+
+uint8_t read_cartridge(uint16_t address)
+{
+    return ctx.rom_data[address];
+}
+
+void write_cartridge(uint16_t address, uint8_t value)
+{
+    return;
+}

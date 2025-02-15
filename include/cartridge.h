@@ -21,3 +21,6 @@ typedef struct {
 
 bool load_cartridge(char *cartridge);
 void free_cartridge();
+
+uint8_t read_cartridge(uint16_t address);
+void write_cartridge(uint16_t address, uint8_t value);
