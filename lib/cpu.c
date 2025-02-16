@@ -63,7 +63,7 @@ static void goto_address(cpu_context *ctx, uint16_t addr)
         return;
     }
 
-    ctx->regs.pc = ctx->fetched_data;
+    ctx->regs.pc = ctx->addr;
     emu_cycles(1);
 }
 
