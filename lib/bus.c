@@ -1,5 +1,6 @@
 #include <bus.h>
 #include <cartridge.h>
+#include <ram.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -27,10 +28,48 @@ uint8_t read_bus(uint16_t address)
     }
     else if (address < 0xA000)
     {
-        
+        printf("UNSUPPORTED BUS READ FOR VRAM: %04X!\n", address);
+        exit(-7);
+    }
+    else if (address < 0xC000)
+    {
+        return read_cartridge(address);
+    }
+    else if (address < 0xE000)
+    {
+        return read_wram(address);
+    }
+    else if (address < 0xFE00)
+    {
+        // Reserved for Echo RAM
+        return 0;
+    }
+    else if (address < 0xFEA0)
+    {
+        printf("UNSUPPORTED BUS READ FOR OAM: %04X!\n", address);
+        exit(-7);
+    }
+    else if (address < 0xFF00)
+    {
+        // Reserved - unusabled
+        return 0;
+    }
+    else if (address < 0xFF80)
+    {
+        printf("UNSUPPORTED BUS READ FOR I/O REGISTERS: %04X!\n", address);
+        exit(-7);
+    }
+    else if (address < 0xFFFF)
+    {
+        return read_hram(address);
+    }
+    else if (address == 0xFFFF)
+    {
+        printf("UNSUPPORTED BUS READ FOR IE REGISTER: %04X!\n", address);
+        exit(-7);
     }
     printf("UNSUPPORTED BUS READ: %04X!\n", address);
-    exit(-7);
+    return 0;
 }
 
 void write_bus(uint16_t address, uint8_t value)
@@ -38,10 +77,51 @@ void write_bus(uint16_t address, uint8_t value)
     if (address < 0x8000)
     {
         write_cartridge(address, value);
-        return;
     }
-    printf("UNSUPPORTED BUS READ: %04X!\n", address);
-    exit(-7);
+    else if (address < 0xA000)
+    {
+        printf("UNSUPPORTED BUS WRITE FOR VRAM: %04X!\n", address);
+        exit(-7);
+    }
+    else if (address < 0xC000)
+    {
+        write_cartridge(address, value);
+    }
+    else if (address < 0xE000)
+    {
+        write_wram(address, value);
+    }
+    else if (address < 0xFE00)
+    {
+        // Reserved for Echo RAM
+    }
+    else if (address < 0xFEA0)
+    {
+        printf("UNSUPPORTED BUS WRITE FOR OAM: %04X!\n", address);
+        exit(-7);
+    }
+    else if (address < 0xFF00)
+    {
+        // Reserved - unusabled
+    }
+    else if (address < 0xFF80)
+    {
+        printf("UNSUPPORTED BUS WRITE FOR I/O REGISTERS: %04X!\n", address);
+        exit(-7);
+    }
+    else if (address < 0xFFFF)
+    {
+        write_hram(address, value);
+    }
+    else if (address == 0xFFFF)
+    {
+        printf("UNSUPPORTED BUS WRITE FOR IE REGISTER: %04X!\n", address);
+        exit(-7);
+    }
+    else 
+    {
+        printf("UNSUPPORTED BUS WRITE: %04X!\n", address);
+    } 
 }
 
 uint16_t read16_bus(uint16_t address)

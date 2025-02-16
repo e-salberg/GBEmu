@@ -158,7 +158,8 @@ char* instruction_lookup[] = {
     [IN_LD] = "LD",
     [IN_INC] = "INC",
     [IN_DEC] = "DEC",
-    [IN_JP] = "JP"
+    [IN_JP] = "JP",
+    [IN_JR] = "JR"
 };
 
 
