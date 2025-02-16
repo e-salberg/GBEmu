@@ -7,9 +7,12 @@ instruction instructions[0x100] = {
     [0x02] = { IN_LD, AM_MEMR_R, RT_BC, RT_A },
     [0x03] = { IN_INC, AM_R, RT_BC },
     [0x04] = { IN_INC, AM_R, RT_B },
+    [0x05] = { IN_DEC, AM_R, RT_B },
     [0x06] = { IN_LD, AM_R_IMM8, RT_B },
     [0x08] = { IN_LD, AM_A16_R, RT_SP },
+    [0x0B] = { IN_DEC, AM_R, RT_BC },
     [0x0C] = { IN_INC, AM_R, RT_C },
+    [0x0D] = { IN_DEC, AM_R, RT_C },
     [0x0E] = { IN_LD, AM_R_IMM8, RT_C },
 
     // 0x1X
@@ -17,9 +20,12 @@ instruction instructions[0x100] = {
     [0x12] = { IN_LD, AM_MEMR_R, RT_DE, RT_A },
     [0x13] = { IN_INC, AM_R, RT_DE },
     [0x14] = { IN_INC, AM_R, RT_D },
+    [0x15] = { IN_DEC, AM_R, RT_D },
     [0x16] = { IN_LD, AM_R_IMM8, RT_D },
     [0x1A] = { IN_LD, AM_R_MEMR, RT_A, RT_DE },
+    [0x1B] = { IN_DEC, AM_R, RT_DE },
     [0x1C] = { IN_INC, AM_R, RT_E },
+    [0x1D] = { IN_DEC, AM_R, RT_E },
     [0x1E] = { IN_LD, AM_R_IMM8, RT_E },
 
     // 0x2X
@@ -27,9 +33,12 @@ instruction instructions[0x100] = {
     [0x22] = { IN_LD, AM_HLI_R, RT_HL, RT_A },
     [0x23] = { IN_INC, AM_R, RT_HL },
     [0x24] = { IN_INC, AM_R, RT_H },
+    [0x25] = { IN_DEC, AM_R, RT_H },
     [0x26] = { IN_LD, AM_R_IMM8, RT_H },
     [0x2A] = { IN_LD, AM_R_HLI, RT_A, RT_HL },
+    [0x2B] = { IN_DEC, AM_R, RT_HL },
     [0x2C] = { IN_INC, AM_R, RT_L },
+    [0x2D] = { IN_DEC, AM_R, RT_L },
     [0x2E] = { IN_LD, AM_R_IMM8, RT_L },
 
     // 0x3X
@@ -37,9 +46,12 @@ instruction instructions[0x100] = {
     [0x32] = { IN_LD, AM_HLD_R, RT_HL, RT_A },
     [0x33] = { IN_INC, AM_R, RT_SP },
     [0x34] = { IN_INC, AM_MEMR, RT_HL },
+    [0x35] = { IN_DEC, AM_MEMR, RT_HL },
     [0x36] = { IN_LD, AM_MEMR_IMM8, RT_HL },
     [0x3A] = { IN_LD, AM_R_HLD, RT_A, RT_HL },
-    [0x0C] = { IN_INC, AM_R, RT_A },
+    [0x3B] = { IN_DEC, AM_R, RT_SP },
+    [0x3C] = { IN_INC, AM_R, RT_A },
+    [0x3D] = { IN_DEC, AM_R, RT_A },
     [0x3E] = { IN_LD, AM_R_IMM8, RT_A },
 
     // 0x4X
@@ -133,6 +145,7 @@ char* instruction_lookup[] = {
     [IN_NOP] = "NOP",
     [IN_LD] = "LD",
     [IN_INC] = "INC",
+    [IN_DEC] = "DEC",
     [IN_JP] = "JP"
 };
 

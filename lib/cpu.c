@@ -224,6 +224,27 @@ static void increment(cpu_context *ctx)
     set_flags(ctx, data == 0, 0, data & 0xF == 0, -1);
 }
 
+static void decrement(cpu_context *ctx)
+{
+    uint16_t data = ctx->fetched_data - 1;
+
+    if (ctx->is_dest_memory)
+    {  
+        write_bus(ctx->dest_in_memory, data &= 0xFF);
+        emu_cycles(1);
+    }
+    else
+    {
+        set_register(ctx->current_instruction->reg_1, data);
+        if (is_16_bit(ctx->current_instruction->reg_1))
+        {
+            emu_cycles(1);
+            return;
+        }
+    }
+    set_flags(ctx, data == 0, 1, data & 0xF == 0xF, -1);
+}
+
 static void jump(cpu_context *ctx)
 {
     ctx->regs.pc = ctx->fetched_data;
@@ -241,6 +262,7 @@ static instruction_function instr_functions[] = {
     [IN_NOP] = nop,
     [IN_LD] = load,
     [IN_INC] = increment,
+    [IN_DEC] = decrement,
     [IN_JP] = jump,
 };
 

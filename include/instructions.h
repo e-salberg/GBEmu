@@ -44,6 +44,7 @@ typedef enum {
     IN_NOP,
     IN_LD,
     IN_INC,
+    IN_DEC,
     IN_JP
 } instruction_type;
 
