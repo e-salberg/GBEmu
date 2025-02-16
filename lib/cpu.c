@@ -213,7 +213,7 @@ static void nop(cpu_context *ctx)
     return;
 }
 
-static void load(cpu_context *ctx)
+static void ld(cpu_context *ctx)
 {
     if (ctx->is_dest_memory)
     {
@@ -232,7 +232,7 @@ static void load(cpu_context *ctx)
     set_register(ctx->current_instruction->reg_1, ctx->fetched_data);
 }
 
-static void increment(cpu_context *ctx)
+static void inc(cpu_context *ctx)
 {
     uint16_t data = ctx->fetched_data + 1;
 
@@ -253,7 +253,7 @@ static void increment(cpu_context *ctx)
     set_flags(ctx, data == 0, 0, data & 0xF == 0, -1);
 }
 
-static void decrement(cpu_context *ctx)
+static void dec(cpu_context *ctx)
 {
     uint16_t data = ctx->fetched_data - 1;
 
@@ -274,7 +274,7 @@ static void decrement(cpu_context *ctx)
     set_flags(ctx, data == 0, 1, data & 0xF == 0xF, -1);
 }
 
-static void jump(cpu_context *ctx)
+static void jp(cpu_context *ctx)
 {
     goto_address(ctx, ctx->fetched_data);
 }
@@ -288,10 +288,10 @@ static void none(cpu_context *ctx)
 static instruction_function instr_functions[] = {
     [IN_NONE] = none,
     [IN_NOP] = nop,
-    [IN_LD] = load,
-    [IN_INC] = increment,
-    [IN_DEC] = decrement,
-    [IN_JP] = jump,
+    [IN_LD] = ld,
+    [IN_INC] = inc,
+    [IN_DEC] = dec,
+    [IN_JP] = jp,
 };
 
 instruction_function get_instruction_function(instruction_type type)
