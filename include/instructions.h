@@ -23,6 +23,8 @@ typedef enum {
 typedef enum {
     AM_IMPLIED,
     AM_IMM16,
+    AM_R,
+    AM_MEMR,
     AM_R_R,
     AM_R_IMM16,
     AM_R_IMM8,
@@ -41,6 +43,7 @@ typedef enum {
     IN_NONE,
     IN_NOP,
     IN_LD,
+    IN_INC,
     IN_JP
 } instruction_type;
 
