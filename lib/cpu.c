@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define BIT_SET(a, n, on) { if (on) a |= (1 << n); else a &= ~(1 << n); }
-
 cpu_context ctx = {0};
 
 static bool is_16_bit(reg_type rt)
@@ -19,23 +17,54 @@ static void set_flags(cpu_context *ctx, int8_t z, int8_t n, int8_t h, int8_t c)
 {
     if (z != -1)
     {
-        BIT_SET(ctx->regs.f, 7, z);
+        SET_BIT(ctx->regs.f, 7, z);
     }
 
     if (n != -1)
     {
-        BIT_SET(ctx->regs.f, 6, n);
+        SET_BIT(ctx->regs.f, 6, n);
     }
 
     if (h != -1)
     {
-        BIT_SET(ctx->regs.f, 5, h);
+        SET_BIT(ctx->regs.f, 5, h);
     }
 
     if (c != -1)
     {
-        BIT_SET(ctx->regs.f, 4, c);
+        SET_BIT(ctx->regs.f, 4, c);
     }
+}
+
+static bool check_condition(cpu_context *ctx)
+{
+    bool z = CPU_FLAG_Z;
+    bool c = CPU_FLAG_C;
+
+    switch(ctx->current_instruction->cond)
+    {
+        case CC_NONE:
+            return true;
+        case CC_Z:
+            return z;
+        case CC_NZ:
+            return !z;
+        case CC_C:
+            return c;
+        case CC_NC:
+            return !c;
+    }
+}
+
+static void goto_address(cpu_context *ctx, uint16_t addr)
+{
+    if (!check_condition(ctx))
+    {
+        return;
+    }
+
+    ctx->regs.pc = ctx->fetched_data;
+    emu_cycles(1);
 }
 
 void cpu_init()
@@ -247,8 +276,7 @@ static void decrement(cpu_context *ctx)
 
 static void jump(cpu_context *ctx)
 {
-    ctx->regs.pc = ctx->fetched_data;
-    emu_cycles(1);
+    goto_address(ctx, ctx->fetched_data);
 }
 
 static void none(cpu_context *ctx)

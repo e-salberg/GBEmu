@@ -1,5 +1,7 @@
 #include <bus.h>
 #include <cartridge.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /*
     Memory Map
@@ -27,7 +29,8 @@ uint8_t read_bus(uint16_t address)
     {
         
     }
-
+    printf("UNSUPPORTED BUS READ: %04X!\n", address);
+    exit(-7);
 }
 
 void write_bus(uint16_t address, uint8_t value)
@@ -37,6 +40,8 @@ void write_bus(uint16_t address, uint8_t value)
         write_cartridge(address, value);
         return;
     }
+    printf("UNSUPPORTED BUS READ: %04X!\n", address);
+    exit(-7);
 }
 
 uint16_t read16_bus(uint16_t address)

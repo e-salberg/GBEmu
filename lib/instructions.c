@@ -128,10 +128,17 @@ instruction instructions[0x100] = {
 
 
     // 0xCX
+    [0xC2] = { IN_JP, AM_IMM16, RT_NONE, RT_NONE, CC_NZ },
     [0xC3] = { IN_JP, AM_IMM16 },
+    [0xC2] = { IN_JP, AM_IMM16, RT_NONE, RT_NONE, CC_Z },
+
+    // 0xDX
+    [0xD2] = { IN_JP, AM_IMM16, RT_NONE, RT_NONE, CC_NC },
+    [0xDA] = { IN_JP, AM_IMM16, RT_NONE, RT_NONE, CC_C },
 
     // 0xEX
-    [0xE8] = { IN_LD, AM_A16_R, RT_A },
+    [0xE9] = { IN_JP, AM_R, RT_HL },
+    [0xEA] = { IN_LD, AM_A16_R, RT_A },
 
     // 0xFX
     [0xFA] = { IN_LD, AM_R_A16, RT_A },

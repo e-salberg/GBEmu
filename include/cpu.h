@@ -2,6 +2,9 @@
 #include <stdbool.h>
 #include <instructions.h>
 
+#define CHECK_BIT(a, n) ((a & (1 << n)) ? 1 : 0)
+#define SET_BIT(a, n, on) { if (on) a |= (1 << n); else a &= ~(1 << n); }
+
 typedef struct 
 {
     uint8_t a;
@@ -26,6 +29,11 @@ typedef struct
     uint16_t dest_in_memory;
     bool is_dest_memory;
 } cpu_context;
+
+#define CPU_FLAG_Z CHECK_BIT(ctx->regs.f, 7)
+#define CPU_FLAG_N CHECK_BIT(ctx->regs.f, 6)
+#define CPU_FLAG_H CHECK_BIT(ctx->regs.f, 5)
+#define CPU_FLAG_C CHECK_BIT(ctx->regs.f, 4)
 
 void cpu_init();
 bool cpu_step();
