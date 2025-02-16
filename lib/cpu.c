@@ -113,6 +113,7 @@ static void decode_opcode()
         case AM_MEMR_IMM8:
             ctx.dest_in_memory = read_register(ctx.current_instruction->reg_1);
             ctx.is_dest_memory = true;
+        case AM_IMM8:
         case AM_R_IMM8:
             ctx.fetched_data = read_bus(ctx.regs.pc++);
             emu_cycles(1);
@@ -279,6 +280,13 @@ static void jp(cpu_context *ctx)
     goto_address(ctx, ctx->fetched_data);
 }
 
+static void jr(cpu_context *ctx)
+{
+    int8_t rel = (int8_t)(ctx->fetched_data & 0xFF);
+    uint16_t addr = ctx->regs.pc + rel;
+    goto_address(ctx, addr);
+}
+
 static void none(cpu_context *ctx)
 {
     printf("INVALID INSTRUCTION!\n");
@@ -292,6 +300,7 @@ static instruction_function instr_functions[] = {
     [IN_INC] = inc,
     [IN_DEC] = dec,
     [IN_JP] = jp,
+    [IN_JR] = jr,
 };
 
 instruction_function get_instruction_function(instruction_type type)
