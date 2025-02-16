@@ -47,7 +47,10 @@ typedef enum {
     IN_INC,
     IN_DEC,
     IN_JP,
-    IN_JR
+    IN_JR,
+    IN_CALL,
+    IN_RET,
+    IN_RETI,
 } instruction_type;
 
 typedef enum {

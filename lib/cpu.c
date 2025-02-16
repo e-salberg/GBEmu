@@ -56,13 +56,21 @@ static bool check_condition(cpu_context *ctx)
     }
 }
 
-static void goto_address(cpu_context *ctx, uint16_t addr)
+static void goto_address(cpu_context *ctx, uint16_t addr, bool pushpc)
 {
     if (!check_condition(ctx))
     {
         return;
     }
 
+    if (pushpc)
+    {
+        ctx->regs.sp--;
+        emu_cycles(1);
+        write_bus(ctx->regs.sp, (ctx->regs.pc >> 8) & 0xFF);
+        emu_cycles(1);
+        write_bus(ctx->regs.sp, ctx->regs.pc & 0xFF);    
+    }
     ctx->regs.pc = addr;
     emu_cycles(1);
 }
@@ -277,14 +285,43 @@ static void dec(cpu_context *ctx)
 
 static void jp(cpu_context *ctx)
 {
-    goto_address(ctx, ctx->fetched_data);
+    goto_address(ctx, ctx->fetched_data, false);
 }
 
 static void jr(cpu_context *ctx)
 {
     int8_t rel = (int8_t)(ctx->fetched_data & 0xFF);
     uint16_t addr = ctx->regs.pc + rel;
-    goto_address(ctx, addr);
+    goto_address(ctx, addr, false);
+}
+
+static void call(cpu_context *ctx)
+{
+    goto_address(ctx, ctx->fetched_data, true);
+}
+
+static void ret(cpu_context *ctx)
+{
+    if (ctx->current_instruction->cond != CC_NONE)
+    {
+        emu_cycles(1);
+    }
+
+    if (check_condition(ctx))
+    {
+        uint8_t lo = read_bus(ctx->regs.sp++);
+        emu_cycles(1);
+        uint8_t hi = read_bus(ctx->regs.sp++);
+        emu_cycles(1);
+        ctx->regs.pc = (hi << 8) | lo;
+        emu_cycles(1);
+    }
+}
+
+static void reti(cpu_context *ctx)
+{
+    ret(ctx);
+    ctx->interrupt_master_enable = true;
 }
 
 static void none(cpu_context *ctx)
@@ -301,6 +338,9 @@ static instruction_function instr_functions[] = {
     [IN_DEC] = dec,
     [IN_JP] = jp,
     [IN_JR] = jr,
+    [IN_CALL] = call,
+    [IN_RET] = ret,
+    [IN_RETI] = reti,
 };
 
 instruction_function get_instruction_function(instruction_type type)

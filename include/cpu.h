@@ -30,6 +30,7 @@ typedef struct
     uint16_t fetched_data;
     uint16_t dest_in_memory;
     bool is_dest_memory;
+    bool interrupt_master_enable;
 } cpu_context;
 
 #define CPU_FLAG_Z CHECK_BIT(ctx->regs.f, 7)

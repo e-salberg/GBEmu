@@ -7,6 +7,11 @@ uint16_t reverse(uint16_t n)
     return ((n & 0xFF00) >> 8) | ((n & 0x00FF) << 8);
 }
 
+cpu_registers *get_cpu_registers()
+{
+    return &ctx.regs;
+}
+
 uint16_t read_register(reg_type rt)
 {
     switch(rt)
