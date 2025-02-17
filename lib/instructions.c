@@ -157,9 +157,9 @@ instruction instructions[0x100] = {
     [0xEA] = { IN_LD, AM_A16_R, RT_A },
 
     // 0xFX
-    [0xFA] = { IN_LD, AM_R_A16, RT_A },
-    // 0xF8 speical load LD HL, SP+e8
+    [0xF8] = { IN_LD_SP_E8, AM_HL_SPE8, RT_HL, RT_SP },
     [0xF9] = { IN_LD, AM_R_R, RT_SP, RT_HL },
+    [0xFA] = { IN_LD, AM_R_A16, RT_A },
 
 };
 
@@ -167,6 +167,7 @@ char* instruction_lookup[] = {
     [IN_NONE] = "NONE",
     [IN_NOP] = "NOP",
     [IN_LD] = "LD",
+    [IN_LD_SP_E8] = "LD",
     [IN_INC] = "INC",
     [IN_DEC] = "DEC",
     [IN_JP] = "JP",

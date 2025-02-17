@@ -38,12 +38,14 @@ typedef enum {
     AM_HLD_R,
     AM_R_HLI,
     AM_R_HLD,
+    AM_HL_SPE8,
 } addr_mode;
 
 typedef enum {
     IN_NONE,
     IN_NOP,
     IN_LD,
+    IN_LD_SP_E8,
     IN_INC,
     IN_DEC,
     IN_JP,

@@ -123,6 +123,7 @@ static void decode_opcode()
             ctx.is_dest_memory = true;
         case AM_IMM8:
         case AM_R_IMM8:
+        case AM_HL_SPE8:
             ctx.fetched_data = read_bus(ctx.regs.pc++);
             emu_cycles(1);
             break;
@@ -241,6 +242,15 @@ static void ld(cpu_context *ctx)
     set_register(ctx->current_instruction->reg_1, ctx->fetched_data);
 }
 
+// 0xF8 speical load LD HL, SP+e8
+static void ld_sp_e8(cpu_context *ctx)
+{
+    uint8_t h = (ctx->regs.sp & 0xF) + (ctx->fetched_data & 0xF) > 0xF;
+    uint8_t c =  (ctx->regs.sp & 0xFF) + (ctx->fetched_data & 0xFF) > 0xFF;
+    set_register(ctx->current_instruction->reg_1, ((int8_t)ctx->fetched_data) + ctx->regs.sp);
+    set_flags(ctx, 0, 0, h, c);
+}
+
 static void inc(cpu_context *ctx)
 {
     uint16_t data = ctx->fetched_data + 1;
@@ -334,6 +344,7 @@ static instruction_function instr_functions[] = {
     [IN_NONE] = none,
     [IN_NOP] = nop,
     [IN_LD] = ld,
+    [IN_LD_SP_E8] = ld_sp_e8,
     [IN_INC] = inc,
     [IN_DEC] = dec,
     [IN_JP] = jp,
