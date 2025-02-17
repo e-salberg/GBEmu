@@ -128,13 +128,34 @@ static void decode_opcode()
             emu_cycles(1);
             break;
         case AM_R_MEMR:
-            ctx.fetched_data = read_bus(read_register(ctx.current_instruction->reg_2));
+            uint16_t address = read_register(ctx.current_instruction->reg_2);
+            if (ctx.current_instruction->reg_2 == RT_C)
+            {
+                address |= 0xFF00;
+            }
+            ctx.fetched_data = read_bus(address);
             emu_cycles(1);
             break;
         case AM_MEMR_R:
             ctx.fetched_data = read_register(ctx.current_instruction->reg_2);
             ctx.dest_in_memory = read_register(ctx.current_instruction->reg_1);
             ctx.is_dest_memory = true;
+            if (ctx.current_instruction->reg_1 == RT_C)
+            {
+                ctx.dest_in_memory |= 0xFF00;
+            }
+            break;
+        case AM_A8_R:
+            ctx.fetched_data = read_register(ctx.current_instruction->reg_1);
+            ctx.dest_in_memory = read_bus(ctx.regs.pc++);
+            ctx.is_dest_memory = true;
+            emu_cycles(1);
+            break;
+        case AM_R_A8:
+            uint8_t n = read_bus(ctx.regs.pc++);
+            emu_cycles(1);
+            ctx.fetched_data = read_bus(0xFF00 | n);
+            emu_cycles(1);
             break;
         case AM_A16_R:
             lo = read_bus(ctx.regs.pc++);
@@ -251,6 +272,19 @@ static void ld_sp_e8(cpu_context *ctx)
     set_flags(ctx, 0, 0, h, c);
 }
 
+static void ldh(cpu_context *ctx)
+{
+    if (ctx->is_dest_memory)
+    {
+        write_bus(0xFF00 | ctx->dest_in_memory, ctx->fetched_data);
+        emu_cycles(1);
+    }
+    else 
+    {
+        set_register(ctx->current_instruction->reg_1, ctx->fetched_data);
+    }
+}
+
 static void inc(cpu_context *ctx)
 {
     uint16_t data = ctx->fetched_data + 1;
@@ -345,6 +379,7 @@ static instruction_function instr_functions[] = {
     [IN_NOP] = nop,
     [IN_LD] = ld,
     [IN_LD_SP_E8] = ld_sp_e8,
+    [IN_LDH] = ldh,
     [IN_INC] = inc,
     [IN_DEC] = dec,
     [IN_JP] = jp,
