@@ -124,6 +124,7 @@ static void decode_opcode()
         case AM_IMM8:
         case AM_R_IMM8:
         case AM_HL_SPE8:
+        case AM_SP_E8:
             ctx.fetched_data = read_bus(ctx.regs.pc++);
             emu_cycles(1);
             break;
@@ -387,6 +388,55 @@ static void pop(cpu_context *ctx)
     set_register(ctx->current_instruction->reg_1, (hi << 8) | lo);
 }
 
+static void add(cpu_context *ctx)
+{
+    // ADD HL, rr
+    if (is_16_bit(ctx->current_instruction->reg_1))
+    {
+        uint16_t reg = read_register(ctx->current_instruction->reg_1);
+        uint32_t result = reg + ctx->fetched_data;
+
+        int c = result > 0xFFFF;
+        int h = (reg & 0xFF) + (ctx->fetched_data & 0xFF) > 0xFF;
+
+        // to be accuate for ADD HL, BC 
+        // it should add L + C, m-cycle, H + B + flags.c?
+        emu_cycles(1); 
+        set_register(ctx->current_instruction->reg_1, result & 0xFFFF);
+        set_flags(ctx, -1, 0, h, c);
+    }
+    else 
+    {
+        // ADD A, r or ADD A, n8
+        uint8_t reg = read_register(ctx->current_instruction->reg_1) & 0xFF;
+        uint8_t val = ctx->fetched_data & 0xFF;
+        uint16_t result = reg + val;
+
+        int z = result == 0;
+        int c = result > 0xFF;
+        int h = (reg & 0xF) + (ctx->fetched_data & 0xF) > 0xF;
+
+        set_register(ctx->current_instruction->reg_1, result & 0xFF);
+        set_flags(ctx, z, 0, h, c);
+    }
+}
+
+static void add_sp_e8(cpu_context *ctx)
+{
+    int8_t e = (int8_t)ctx->fetched_data;
+    uint16_t sp = read_register(RT_SP);
+
+    uint32_t result = sp + e;
+
+    int h = (sp & 0xF) + (e & 0xF) > 0xF;
+    int c = (sp & 0xFF) + (e) > 0xFF;
+
+    emu_cycles(1);
+    set_register(RT_SP, result & 0xFFFF);
+    emu_cycles(1);
+    set_flags(ctx, 0, 0, h, c);
+}
+
 static void none(cpu_context *ctx)
 {
     printf("INVALID INSTRUCTION!\n");
@@ -408,6 +458,8 @@ static instruction_function instr_functions[] = {
     [IN_RETI] = reti,
     [IN_PUSH] = push,
     [IN_POP] = pop,
+    [IN_ADD] = add,
+    [IN_ADD_SP_E8] = add_sp_e8,
 };
 
 instruction_function get_instruction_function(instruction_type type)

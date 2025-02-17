@@ -40,7 +40,8 @@ typedef enum {
     AM_HLD_R,
     AM_R_HLI,
     AM_R_HLD,
-    AM_HL_SPE8, 
+    AM_HL_SPE8,
+    AM_SP_E8,
 } addr_mode;
 
 typedef enum {
@@ -58,6 +59,8 @@ typedef enum {
     IN_RETI,
     IN_PUSH,
     IN_POP,
+    IN_ADD,
+    IN_ADD_SP_E8,
 } instruction_type;
 
 typedef enum {
