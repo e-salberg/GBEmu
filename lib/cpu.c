@@ -67,7 +67,7 @@ static void goto_address(cpu_context *ctx, uint16_t addr, bool pushpc)
     {
         ctx->regs.sp--;
         emu_cycles(1);
-        write_bus(ctx->regs.sp, (ctx->regs.pc >> 8) & 0xFF);
+        write_bus(ctx->regs.sp--, (ctx->regs.pc >> 8) & 0xFF);
         emu_cycles(1);
         write_bus(ctx->regs.sp, ctx->regs.pc & 0xFF);    
     }
@@ -368,6 +368,25 @@ static void reti(cpu_context *ctx)
     ctx->interrupt_master_enable = true;
 }
 
+static void push(cpu_context *ctx)
+{
+    ctx->regs.sp--;
+    emu_cycles(1);
+    write_bus(ctx->regs.sp--, (ctx->fetched_data >> 8) & 0xFF);
+    emu_cycles(1);
+    write_bus(ctx->regs.sp, ctx->fetched_data & 0xFF);   
+    emu_cycles(1);
+}
+
+static void pop(cpu_context *ctx)
+{  
+    uint16_t lo = read_bus(ctx->regs.sp++);
+    emu_cycles(1);
+    uint16_t hi = read_bus(ctx->regs.sp++);
+    emu_cycles(1);
+    set_register(ctx->current_instruction->reg_1, (hi << 8) | lo);
+}
+
 static void none(cpu_context *ctx)
 {
     printf("INVALID INSTRUCTION!\n");
@@ -387,6 +406,8 @@ static instruction_function instr_functions[] = {
     [IN_CALL] = call,
     [IN_RET] = ret,
     [IN_RETI] = reti,
+    [IN_PUSH] = push,
+    [IN_POP] = pop,
 };
 
 instruction_function get_instruction_function(instruction_type type)

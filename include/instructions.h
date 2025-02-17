@@ -56,6 +56,8 @@ typedef enum {
     IN_CALL,
     IN_RET,
     IN_RETI,
+    IN_PUSH,
+    IN_POP,
 } instruction_type;
 
 typedef enum {
