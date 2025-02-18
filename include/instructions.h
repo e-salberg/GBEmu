@@ -62,6 +62,8 @@ typedef enum {
     IN_ADD,
     IN_ADD_SP_E8,
     IN_ADC,
+    IN_SUB,
+    IN_SBC,
 } instruction_type;
 
 typedef enum {

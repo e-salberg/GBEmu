@@ -448,6 +448,29 @@ static void adc(cpu_context *ctx)
     set_flags(ctx, ctx->regs.a == 0, 0, h, result > 0xFF);
 }
 
+static void sub(cpu_context *ctx)
+{
+    uint8_t reg = read_register(ctx->current_instruction->reg_1);
+    uint8_t result = reg - ctx->fetched_data;
+    int h = (ctx->fetched_data & 0xF) > (reg & 0xF);
+    int c = ctx->fetched_data > reg;
+
+    set_register(ctx->current_instruction->reg_1, result);
+    set_flags(ctx, result == 0, 1, h, c);
+}
+
+static void sbc(cpu_context *ctx)
+{
+    uint8_t reg = read_register(ctx->current_instruction->reg_1);
+    uint8_t cf = CPU_FLAG_C;
+    uint8_t result = reg - ctx->fetched_data - cf;
+    int h = (ctx->fetched_data & 0xF) + cf > (reg & 0xF);
+    int c = (ctx->fetched_data + cf) > reg;
+
+    set_register(ctx->current_instruction->reg_1, result);
+    set_flags(ctx, result == 0, 1, h, c);
+}
+
 static void none(cpu_context *ctx)
 {
     printf("INVALID INSTRUCTION!\n");
@@ -472,6 +495,8 @@ static instruction_function instr_functions[] = {
     [IN_ADD] = add,
     [IN_ADD_SP_E8] = add_sp_e8,
     [IN_ADC] = adc,
+    [IN_SUB] = sub,
+    [IN_SBC] = sbc,
 };
 
 instruction_function get_instruction_function(instruction_type type)
