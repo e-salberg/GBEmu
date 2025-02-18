@@ -12,6 +12,7 @@ instruction instructions[0x100] = {
     [0x07] = { IN_RLCA },
     [0x08] = { IN_LD, AM_A16_R, RT_SP },
     [0x09] = { IN_ADD, AM_R_R, RT_HL, RT_BC },
+    [0x0A] = { IN_LD, AM_R_MEMR, RT_A, RT_BC },
     [0x0B] = { IN_DEC, AM_R, RT_BC },
     [0x0C] = { IN_INC, AM_R, RT_C },
     [0x0D] = { IN_DEC, AM_R, RT_C },
@@ -19,6 +20,7 @@ instruction instructions[0x100] = {
     [0x0F] = { IN_RRCA },
 
     // 0x1X
+    [0x10] = { IN_STOP, AM_IMM8 },
     [0x11] = { IN_LD, AM_R_IMM16, RT_DE },
     [0x12] = { IN_LD, AM_MEMR_R, RT_DE, RT_A },
     [0x13] = { IN_INC, AM_R, RT_DE },
@@ -286,6 +288,10 @@ char* instruction_lookup[] = {
     [IN_RLA] = "RLA",
     [IN_RRCA] = "RRCA",
     [IN_RRA] = "RRA",
+    [IN_EI] = "EI",
+    [IN_DI] = "DI",
+    [IN_HALT] = "HALT",
+    [IN_STOP] = "STOP",
 };
 
 

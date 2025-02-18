@@ -567,6 +567,11 @@ static void halt(cpu_context *ctx)
     ctx->is_halted = true;
 }
 
+static void stop(cpu_context *ctx)
+{
+    fprintf(stderr, "STOPPING!\n");
+}
+
 static void none(cpu_context *ctx)
 {
     printf("INVALID INSTRUCTION!\n");
@@ -605,6 +610,7 @@ static instruction_function instr_functions[] = {
     [IN_EI] = ei,
     [IN_DI] = di,
     [IN_HALT] = halt,
+    [IN_STOP] = stop,
 };
 
 instruction_function get_instruction_function(instruction_type type)
