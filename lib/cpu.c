@@ -570,6 +570,7 @@ static void halt(cpu_context *ctx)
 static void stop(cpu_context *ctx)
 {
     fprintf(stderr, "STOPPING!\n");
+    exit(-8);
 }
 
 static void none(cpu_context *ctx)
