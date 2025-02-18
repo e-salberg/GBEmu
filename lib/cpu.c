@@ -503,6 +503,34 @@ static void cp(cpu_context *ctx)
     set_flags(ctx, result == 0, 1, h, c);
 }
 
+static void rlca(cpu_context *ctx)
+{
+    bool c = CHECK_BIT(ctx->regs.a, 7);
+    ctx->regs.a = (ctx->regs.a << 1) | c;
+    set_flags(ctx, 0, 0, 0, c);
+}
+
+static void rla(cpu_context *ctx)
+{
+    bool c = CHECK_BIT(ctx->regs.a, 7);
+    ctx->regs.a = (ctx->regs.a << 1) | CPU_FLAG_C;
+    set_flags(ctx, 0, 0, 0, c);
+}
+
+static void rrca(cpu_context *ctx)
+{
+    uint8_t c = CHECK_BIT(ctx->regs.a, 0);
+    ctx->regs.a = (ctx->regs.a >> 1) | (c << 7);
+    set_flags(ctx, 0, 0, 0, c);
+}
+
+static void rra(cpu_context *ctx)
+{
+    uint8_t c = CHECK_BIT(ctx->regs.a, 0);
+    ctx->regs.a = (ctx->regs.a >> 1) | (CPU_FLAG_C << 7);
+    set_flags(ctx, 0, 0, 0, c);
+}
+
 
 static void none(cpu_context *ctx)
 {
@@ -535,6 +563,10 @@ static instruction_function instr_functions[] = {
     [IN_OR] = or,
     [IN_XOR] = xor,
     [IN_CP] = cp,
+    [IN_RLCA] = rlca,
+    [IN_RLA] = rla,
+    [IN_RRCA] = rrca,
+    [IN_RRA] = rra,
 };
 
 instruction_function get_instruction_function(instruction_type type)

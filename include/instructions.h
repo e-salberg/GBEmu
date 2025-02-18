@@ -69,6 +69,10 @@ typedef enum {
     IN_OR,
     IN_XOR,
     IN_CP,
+    IN_RLCA,
+    IN_RLA,
+    IN_RRCA,
+    IN_RRA,
 } instruction_type;
 
 typedef enum {
