@@ -190,6 +190,14 @@ instruction instructions[0x100] = {
     [0xB5] = { IN_OR, AM_R_R, RT_A, RT_L },
     [0xB6] = { IN_OR, AM_R_MEMR, RT_A, RT_HL },
     [0xB7] = { IN_OR, AM_R_R, RT_A, RT_A },
+    [0xB8] = { IN_CP, AM_R_R, RT_A, RT_B },
+    [0xB9] = { IN_CP, AM_R_R, RT_A, RT_C },
+    [0xBA] = { IN_CP, AM_R_R, RT_A, RT_D },
+    [0xBB] = { IN_CP, AM_R_R, RT_A, RT_E },
+    [0xBC] = { IN_CP, AM_R_R, RT_A, RT_H },
+    [0xBD] = { IN_CP, AM_R_R, RT_A, RT_L },
+    [0xBE] = { IN_CP, AM_R_MEMR, RT_A, RT_HL },
+    [0xBF] = { IN_CP, AM_R_R, RT_A, RT_A },
 
     // 0xCX
     [0xC0] = { IN_RET, AM_IMPLIED, RT_NONE, RT_NONE, CC_NZ },
@@ -203,7 +211,7 @@ instruction instructions[0x100] = {
     [0xCA] = { IN_JP, AM_IMM16, RT_NONE, RT_NONE, CC_Z },
     [0xCC] = { IN_CALL, AM_IMM16, RT_NONE, RT_NONE, CC_Z },
     [0xCD] = { IN_CALL, AM_IMM16 },
-    [0x8D] = { IN_ADC, AM_R_IMM8, RT_A },
+    [0xCE] = { IN_ADC, AM_R_IMM8, RT_A },
 
     // 0xDX
     [0xD0] = { IN_RET, AM_IMPLIED, RT_NONE, RT_NONE, CC_NC },
@@ -233,6 +241,7 @@ instruction instructions[0x100] = {
     [0xF8] = { IN_LD_SP_E8, AM_HL_SPE8, RT_HL, RT_SP },
     [0xF9] = { IN_LD, AM_R_R, RT_SP, RT_HL },
     [0xFA] = { IN_LD, AM_R_A16, RT_A },
+    [0xFE] = { IN_CP, AM_R_IMM8, RT_A },
 
 };
 
@@ -259,6 +268,7 @@ char* instruction_lookup[] = {
     [IN_AND] = "AND",
     [IN_OR] = "OR",
     [IN_XOR] = "XOR",
+    [IN_CP] = "CP",
 };
 
 

@@ -489,6 +489,15 @@ static void xor(cpu_context *ctx)
     set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
 }
 
+static void cp(cpu_context *ctx)
+{
+    uint8_t reg = read_register(ctx->current_instruction->reg_1);
+    uint8_t result = reg - ctx->fetched_data;
+    int h = (ctx->fetched_data & 0xF) > (reg & 0xF);
+    int c = ctx->fetched_data > reg;
+    set_flags(ctx, result == 0, 1, h, c);
+}
+
 
 static void none(cpu_context *ctx)
 {
@@ -519,6 +528,7 @@ static instruction_function instr_functions[] = {
     [IN_AND] = and,
     [IN_OR] = or,
     [IN_XOR] = xor,
+    [IN_CP] = cp,
 };
 
 instruction_function get_instruction_function(instruction_type type)

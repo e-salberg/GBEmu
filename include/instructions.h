@@ -67,6 +67,7 @@ typedef enum {
     IN_AND,
     IN_OR,
     IN_XOR,
+    IN_CP,
 } instruction_type;
 
 typedef enum {
