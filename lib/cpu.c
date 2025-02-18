@@ -78,7 +78,7 @@ static void goto_address(cpu_context *ctx, uint16_t addr, bool pushpc)
 void cpu_init()
 {
     ctx.regs.pc = 0x100;
-    ctx.regs.a = 0x01;
+    ctx.regs.sp = 0xFFFE;
 }
 
 static void fetch_instruction()
@@ -221,6 +221,7 @@ bool cpu_step()
     fetch_instruction();
     emu_cycles(1);
     decode_opcode();
+    execute();
 
     char flags[16];
     sprintf(flags, "%c%c%c%c", 
@@ -235,8 +236,7 @@ bool cpu_step()
             read_bus(pc + 1), read_bus(pc + 2), ctx.regs.a, flags, ctx.regs.b, ctx.regs.c,
             ctx.regs.d, ctx.regs.e, ctx.regs.h, ctx.regs.l);
     
-    
-    execute();
+        
     return true;
 }
 
@@ -412,7 +412,7 @@ static void add(cpu_context *ctx)
         uint8_t val = ctx->fetched_data & 0xFF;
         uint16_t result = reg + val;
 
-        int z = result == 0;
+        int z = result & 0xFF == 0;
         int c = result > 0xFF;
         int h = (reg & 0xF) + (ctx->fetched_data & 0xF) > 0xF;
 
@@ -435,6 +435,17 @@ static void add_sp_e8(cpu_context *ctx)
     set_register(RT_SP, result & 0xFFFF);
     emu_cycles(1);
     set_flags(ctx, 0, 0, h, c);
+}
+
+static void adc(cpu_context *ctx)
+{
+    uint16_t a = ctx->regs.a;
+    uint16_t c = CPU_FLAG_C;
+    uint16_t result = a + ctx->fetched_data + c;
+    int h = (a & 0xF) + (ctx->fetched_data & 0xF) + (c & 0xF) > 0xF;
+
+    set_register(RT_A, result);
+    set_flags(ctx, ctx->regs.a == 0, 0, h, result > 0xFF);
 }
 
 static void none(cpu_context *ctx)
@@ -460,6 +471,7 @@ static instruction_function instr_functions[] = {
     [IN_POP] = pop,
     [IN_ADD] = add,
     [IN_ADD_SP_E8] = add_sp_e8,
+    [IN_ADC] = adc,
 };
 
 instruction_function get_instruction_function(instruction_type type)
