@@ -57,6 +57,7 @@ typedef enum {
     IN_CALL,
     IN_RET,
     IN_RETI,
+    IN_RST,
     IN_PUSH,
     IN_POP,
     IN_ADD,
@@ -85,6 +86,7 @@ typedef struct {
     reg_type reg_1;
     reg_type reg_2;
     condition_code cond;
+    uint8_t param;
 } instruction;
 
 instruction *get_instruction_by_opcode(uint8_t opcode);

@@ -369,6 +369,11 @@ static void reti(cpu_context *ctx)
     ctx->interrupt_master_enable = true;
 }
 
+static void rst(cpu_context *ctx)
+{
+    goto_address(ctx, ctx->current_instruction->param, true);
+}
+
 static void push(cpu_context *ctx)
 {
     ctx->regs.sp--;
@@ -518,6 +523,7 @@ static instruction_function instr_functions[] = {
     [IN_CALL] = call,
     [IN_RET] = ret,
     [IN_RETI] = reti,
+    [IN_RST] = rst,
     [IN_PUSH] = push,
     [IN_POP] = pop,
     [IN_ADD] = add,
