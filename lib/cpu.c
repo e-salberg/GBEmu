@@ -79,6 +79,7 @@ void cpu_init()
 {
     ctx.regs.pc = 0x100;
     ctx.regs.sp = 0xFFFE;
+    ctx.interrupt_master_enable = false;
 }
 
 static void fetch_instruction()
@@ -217,26 +218,46 @@ static void execute()
 
 bool cpu_step()
 {
-    uint16_t pc = ctx.regs.pc;
-    fetch_instruction();
-    emu_cycles(1);
-    decode_opcode();
-    execute();
+    if (!ctx.is_halted)
+    {    
+        uint16_t pc = ctx.regs.pc;
+        fetch_instruction();
+        emu_cycles(1);
+        decode_opcode();
+        execute();
 
-    char flags[16];
-    sprintf(flags, "%c%c%c%c", 
-        ctx.regs.f & (1 << 7) ? 'Z' : '-',
-        ctx.regs.f & (1 << 6) ? 'N' : '-',
-        ctx.regs.f & (1 << 5) ? 'H' : '-',
-        ctx.regs.f & (1 << 4) ? 'C' : '-'
-    );
+        char flags[16];
+        sprintf(flags, "%c%c%c%c", 
+            ctx.regs.f & (1 << 7) ? 'Z' : '-',
+            ctx.regs.f & (1 << 6) ? 'N' : '-',
+            ctx.regs.f & (1 << 5) ? 'H' : '-',
+            ctx.regs.f & (1 << 4) ? 'C' : '-'
+        );
 
-    printf("%04X: %-12s (%02X %02X %02X) A: %02X F: %s BC: %02X%02X DE: %02X%02X HL: %02X%02X\n", 
+        printf("%04X: %-12s (%02X %02X %02X) A: %02X F: %s BC: %02X%02X DE: %02X%02X HL: %02X%02X\n", 
             pc, get_instruction_name(ctx.current_instruction->type), ctx.current_opcode,
             read_bus(pc + 1), read_bus(pc + 2), ctx.regs.a, flags, ctx.regs.b, ctx.regs.c,
             ctx.regs.d, ctx.regs.e, ctx.regs.h, ctx.regs.l);
-    
-        
+    } 
+    else 
+    {
+        emu_cycles(1);
+        if (ctx.interrupt_flags)
+        {
+            ctx.is_halted = false;
+        }
+
+        if (ctx.interrupt_master_enable)
+        {
+            handle_cpu_interrupts(&ctx);
+            ctx.enabling_ime = false;
+        }
+
+        if (ctx.enabling_ime)
+        {
+            ctx.interrupt_master_enable = true;
+        }
+    }
     return true;
 }
 
@@ -365,8 +386,8 @@ static void ret(cpu_context *ctx)
 
 static void reti(cpu_context *ctx)
 {
-    ret(ctx);
     ctx->interrupt_master_enable = true;
+    ret(ctx);
 }
 
 static void rst(cpu_context *ctx)
@@ -531,6 +552,20 @@ static void rra(cpu_context *ctx)
     set_flags(ctx, 0, 0, 0, c);
 }
 
+static void ei(cpu_context *ctx)
+{
+    ctx->enabling_ime = true;
+}
+
+static void di(cpu_context *ctx)
+{
+    ctx->interrupt_master_enable = false;
+}
+
+static void halt(cpu_context *ctx)
+{
+    ctx->is_halted = true;
+}
 
 static void none(cpu_context *ctx)
 {
@@ -567,6 +602,9 @@ static instruction_function instr_functions[] = {
     [IN_RLA] = rla,
     [IN_RRCA] = rrca,
     [IN_RRA] = rra,
+    [IN_EI] = ei,
+    [IN_DI] = di,
+    [IN_HALT] = halt,
 };
 
 instruction_function get_instruction_function(instruction_type type)

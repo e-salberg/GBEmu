@@ -1,4 +1,5 @@
 #include <bus.h>
+#include <cpu.h>
 #include <cartridge.h>
 #include <ram.h>
 #include <stdio.h>
@@ -65,8 +66,7 @@ uint8_t read_bus(uint16_t address)
     }
     else if (address == 0xFFFF)
     {
-        printf("UNSUPPORTED BUS READ FOR IE REGISTER: %04X!\n", address);
-        exit(-7);
+        return get_interrupt_enable();
     }
     printf("UNSUPPORTED BUS READ: %04X!\n", address);
     return 0;
@@ -115,8 +115,7 @@ void write_bus(uint16_t address, uint8_t value)
     }
     else if (address == 0xFFFF)
     {
-        printf("UNSUPPORTED BUS WRITE FOR IE REGISTER: %04X!\n", address);
-        exit(-7);
+        set_interrupt_enable(value);
     }
     else 
     {

@@ -1,4 +1,5 @@
 #include <cpu.h>
+#include <bus.h>
 
 extern cpu_context ctx;
 
@@ -10,6 +11,71 @@ uint16_t reverse(uint16_t n)
 cpu_registers *get_cpu_registers()
 {
     return &ctx.regs;
+}
+
+uint8_t get_interrupt_enable()
+{
+    return ctx.interrupt_enable;
+}
+
+void set_interrupt_enable(uint8_t value)
+{
+    ctx.interrupt_enable = value;
+}
+
+uint8_t get_interrupt_flags()
+{
+    return ctx.interrupt_flags;
+}
+
+void set_interrupt_flags(uint8_t value)
+{
+    ctx.interrupt_flags = value;
+}
+
+void request_cpu_interrupt(interrupt_type type)
+{
+    ctx.interrupt_flags |= type;
+}
+
+
+static void int_handle(cpu_context *ctx, uint16_t address, interrupt_type type)
+{
+    write_bus(--get_cpu_registers()->sp, (ctx->regs.pc >> 8) & 0xFF);
+    write_bus(--get_cpu_registers()->sp, ctx->regs.pc & 0xFF);
+    ctx->regs.pc = address;
+    ctx->interrupt_flags &= ~type;
+    ctx->is_halted = false;
+    ctx->interrupt_master_enable = false;
+}
+
+static bool int_check(cpu_context *ctx, interrupt_type type)
+{
+    return ctx->interrupt_flags & type && ctx->interrupt_enable & type;
+}
+
+void handle_cpu_interrupts(cpu_context *ctx)
+{
+    if (int_check(ctx, IT_VBLANK))
+    {
+        int_handle(ctx, 0x40, IT_VBLANK);
+    }
+    else if (int_check(ctx, IT_STAT)) 
+    {
+        int_handle(ctx, 0x48, IT_STAT);
+    } 
+    else if (int_check(ctx, IT_TIMER)) 
+    {
+        int_handle(ctx, 0x50, IT_TIMER);
+    }  
+    else if (int_check(ctx, IT_SERIAL)) 
+    {
+        int_handle(ctx, 0x58, IT_SERIAL);
+    }  
+    else if (int_check(ctx, IT_JOYPAD)) 
+    {
+        int_handle(ctx, 0x60, IT_JOYPAD);
+    }
 }
 
 uint16_t read_register(reg_type rt)

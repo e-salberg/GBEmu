@@ -73,6 +73,9 @@ typedef enum {
     IN_RLA,
     IN_RRCA,
     IN_RRA,
+    IN_EI,
+    IN_DI,
+    IN_HALT,
 } instruction_type;
 
 typedef enum {
