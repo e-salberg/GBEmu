@@ -471,6 +471,25 @@ static void sbc(cpu_context *ctx)
     set_flags(ctx, result == 0, 1, h, c);
 }
 
+static void and(cpu_context *ctx)
+{
+    ctx->regs.a &= (ctx->fetched_data & 0xFF);
+    set_flags(ctx, ctx->regs.a == 0, 0, 1, 0);
+}
+
+static void or(cpu_context *ctx)
+{
+    ctx->regs.a |= (ctx->fetched_data & 0xFF);
+    set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
+}
+
+static void xor(cpu_context *ctx)
+{
+    ctx->regs.a ^= (ctx->fetched_data & 0xFF);
+    set_flags(ctx, ctx->regs.a == 0, 0, 0, 0);
+}
+
+
 static void none(cpu_context *ctx)
 {
     printf("INVALID INSTRUCTION!\n");
@@ -497,6 +516,9 @@ static instruction_function instr_functions[] = {
     [IN_ADC] = adc,
     [IN_SUB] = sub,
     [IN_SBC] = sbc,
+    [IN_AND] = and,
+    [IN_OR] = or,
+    [IN_XOR] = xor,
 };
 
 instruction_function get_instruction_function(instruction_type type)

@@ -163,6 +163,34 @@ instruction instructions[0x100] = {
     [0x96] = { IN_SUB, AM_R_MEMR, RT_A, RT_HL },
     [0x97] = { IN_SUB, AM_R_R, RT_A, RT_A },
 
+    // 0xAx
+    [0xA0] = { IN_AND, AM_R_R, RT_A, RT_B },
+    [0xA1] = { IN_AND, AM_R_R, RT_A, RT_C },
+    [0xA2] = { IN_AND, AM_R_R, RT_A, RT_D },
+    [0xA3] = { IN_AND, AM_R_R, RT_A, RT_E },
+    [0xA4] = { IN_AND, AM_R_R, RT_A, RT_H },
+    [0xA5] = { IN_AND, AM_R_R, RT_A, RT_L },
+    [0xA6] = { IN_AND, AM_R_MEMR, RT_A, RT_HL },
+    [0xA7] = { IN_AND, AM_R_R, RT_A, RT_A },
+    [0xA8] = { IN_XOR, AM_R_R, RT_A, RT_B },
+    [0xA9] = { IN_XOR, AM_R_R, RT_A, RT_C },
+    [0xAA] = { IN_XOR, AM_R_R, RT_A, RT_D },
+    [0xAB] = { IN_XOR, AM_R_R, RT_A, RT_E },
+    [0xAC] = { IN_XOR, AM_R_R, RT_A, RT_H },
+    [0xAD] = { IN_XOR, AM_R_R, RT_A, RT_L },
+    [0xAE] = { IN_XOR, AM_R_MEMR, RT_A, RT_HL },
+    [0xAF] = { IN_XOR, AM_R_R, RT_A, RT_A },
+
+    // 0xBX
+    [0xB0] = { IN_OR, AM_R_R, RT_A, RT_B },
+    [0xB1] = { IN_OR, AM_R_R, RT_A, RT_C },
+    [0xB2] = { IN_OR, AM_R_R, RT_A, RT_D },
+    [0xB3] = { IN_OR, AM_R_R, RT_A, RT_E },
+    [0xB4] = { IN_OR, AM_R_R, RT_A, RT_H },
+    [0xB5] = { IN_OR, AM_R_R, RT_A, RT_L },
+    [0xB6] = { IN_OR, AM_R_MEMR, RT_A, RT_HL },
+    [0xB7] = { IN_OR, AM_R_R, RT_A, RT_A },
+
     // 0xCX
     [0xC0] = { IN_RET, AM_IMPLIED, RT_NONE, RT_NONE, CC_NZ },
     [0xC2] = { IN_JP, AM_IMM16, RT_NONE, RT_NONE, CC_NZ },
@@ -195,11 +223,13 @@ instruction instructions[0x100] = {
     [0xE8] = { IN_ADD_SP_E8, AM_SP_E8, RT_SP },
     [0xE9] = { IN_JP, AM_R, RT_HL },
     [0xEA] = { IN_LD, AM_A16_R, RT_A },
+    [0xEE] = { IN_XOR, AM_R_IMM8, RT_A },
 
     // 0xFX
     [0xF0] = { IN_LDH, AM_R_A8, RT_A },
     [0xF2] = { IN_LDH, AM_R_MEMR, RT_A, RT_C },
     [0xF5] = { IN_PUSH, AM_R, RT_AF },
+    [0xF6] = { IN_OR, AM_R_IMM8, RT_A },
     [0xF8] = { IN_LD_SP_E8, AM_HL_SPE8, RT_HL, RT_SP },
     [0xF9] = { IN_LD, AM_R_R, RT_SP, RT_HL },
     [0xFA] = { IN_LD, AM_R_A16, RT_A },
@@ -226,6 +256,9 @@ char* instruction_lookup[] = {
     [IN_ADC] = "ADC",
     [IN_SUB] = "SUB",
     [IN_SBC] = "SBC",
+    [IN_AND] = "AND",
+    [IN_OR] = "OR",
+    [IN_XOR] = "XOR",
 };
 
 
