@@ -2,9 +2,6 @@
 #include <instructions.h>
 #include <bus.h>
 #include <emu.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
 
 extern cpu_context ctx;
 
@@ -506,6 +503,169 @@ static void stop(cpu_context *ctx)
     exit(-8);
 }
 
+static void ccf(cpu_context *ctx)
+{
+    set_flags(ctx, -1, 0, 0, CPU_FLAG_C ^ 1);
+}
+
+static void scf(cpu_context *ctx)
+{
+    set_flags(ctx, -1, 0, 0, 1);
+}
+
+static void daa(cpu_context *ctx)
+{
+    int c_flag = 0;
+    if (CPU_FLAG_N)
+    {
+        // after a subtraction, only adjust if (half-)carry occurred
+        if (CPU_FLAG_H)
+        {
+            ctx->regs.a -= 0x6;
+        }
+        if (CPU_FLAG_C)
+        {
+            ctx->regs.a -= 0x60;
+        }
+    }
+    else 
+    {
+        // after an addition, adjust if (half-)carry occurred or if result is out of bounds
+        if (CPU_FLAG_H || ctx->regs.a & 0xF > 0x9)
+        {
+            ctx->regs.a += 0x6;
+        }
+
+        if (CPU_FLAG_C || ctx->regs.a > 0x99)
+        {
+            ctx->regs.a += 0x60;
+            c_flag = 1;
+        }
+    }
+    set_flags(ctx, ctx->regs.a == 0, -1, 0, c_flag);
+}
+
+static void cpl(cpu_context *ctx)
+{   
+    ctx->regs.a = ~ctx->regs.a;
+    set_flags(ctx, -1, 1, 1, -1);
+}
+
+static reg_type get_cb_register(uint8_t operand)
+{
+    switch(operand)
+    {
+        case 0x00:
+            return RT_B;
+        case 0x01:
+            return RT_C;
+        case 0x02:
+            return RT_D;
+        case 0x03:
+            return RT_E;
+        case 0x04:
+            return RT_H;
+        case 0x05:
+            return RT_L;
+        case 0x06:
+            return RT_HL;
+        case 0x07:
+            return RT_A;
+        default:
+            return RT_NONE;
+    }
+}
+
+static void handle_single_operand_cb_instructions(cpu_context *ctx, uint8_t opcode, reg_type rt, uint8_t data)
+{
+    switch(opcode)
+    {
+        case 0b000:
+            // rlc r8
+            bool c = CHECK_BIT(data, 7);
+            set_reg8(rt, (data << 1) | c);
+            set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
+            break;
+        case 0b001:
+            // rrc r8
+            uint8_t c = CHECK_BIT(data, 0);
+            set_reg8(rt, (data >> 1) | (c << 7));
+            set_flags(ctx, read_reg8 == 0, 0, 0, c);
+            break;
+        case 0b010:
+            // rl r8
+            bool c = CHECK_BIT(data, 7);
+            set_reg8(rt, (data << 1) | CPU_FLAG_C);
+            set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
+            break;
+        case 0b11:
+            // rr r8
+            uint8_t c = CHECK_BIT(data, 0);
+            set_reg8(rt, (data >> 1) | (CPU_FLAG_C << 7));
+            set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
+            break;
+        case 0b100:
+            // sla r8
+            bool c = CHECK_BIT(data, 7);
+            set_reg8(rt, data << 1);
+            set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
+            break;
+        case 0b101:
+            // sra r8
+            // Shift Right Arithmetically register r8 (bit 7 of r8 is unchanged).
+            bool c = CHECK_BIT(data, 0);
+            uint8_t bit7 = CHECK_BIT(data, 7);
+            set_reg8(rt, (data >> 1) | (bit7 << 7));
+            set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
+            break;
+        case 0b110:
+            // swap r8
+            uint8_t result = ((data & 0xF0) >> 4) | ((data & 0xF) << 4);
+            set_reg8(rt, result);
+            set_flags(ctx, result == 0, 0, 0, 0);
+            break;
+        case 0b111:
+            // srl r8
+            bool c = CHECK_BIT(data, 0);
+            set_reg8(rt, data >> 1);
+            set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
+            break;
+        default:
+            break;
+    }
+}
+
+static void cb(cpu_context *ctx)
+{
+    uint8_t cb_instuction = ctx->fetched_data;
+    uint8_t bit_index = (cb_instuction >> 3) & 0b111;
+    reg_type reg = get_cb_register(cb_instuction & 0b111);
+    uint8_t data = read_reg8(reg);
+    switch ((cb_instuction >> 6))
+    {   
+        case 0b00:
+            // single operand instructions
+            handle_single_operand_cb_instructions(ctx, bit_index, reg, data);
+            break;
+        case 0b01:
+            // bit b3, r8
+            set_flags(ctx, !(data & (1 << bit_index)), 0, 1, -1);
+            break;
+        case 0b10:
+            // res b3, r8
+            data &= ~(1 << bit_index);
+            set_reg8(reg, data);
+            break;
+        case 0b11:
+            // set b3, r8
+            data |= (1 << bit_index);
+            set_reg8(reg, data);
+            break;
+        default:
+            break;
+    }
+}
+
 static void none(cpu_context *ctx)
 {
     printf("INVALID INSTRUCTION!\n");
@@ -545,6 +705,11 @@ static instruction_function instr_functions[] = {
     [IN_DI] = di,
     [IN_HALT] = halt,
     [IN_STOP] = stop,
+    [IN_CCF] = ccf,
+    [IN_SCF] = scf,
+    [IN_DAA] = daa,
+    [IN_CPL] = cpl,
+    [IN_CB] = cb,
 };
 
 instruction_function get_instruction_function(instruction_type type)

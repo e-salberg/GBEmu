@@ -165,3 +165,63 @@ void set_register(reg_type rt, uint16_t val)
             break;
     }
 }
+
+uint8_t read_reg8(reg_type rt)
+{
+    switch (rt)
+    {
+        case RT_B:
+            return ctx.regs.b;
+        case RT_C:
+            return ctx.regs.c;
+        case RT_D:
+            return ctx.regs.d;
+        case RT_E:
+            return ctx.regs.e;
+        case RT_H:
+            return ctx.regs.h;
+        case RT_L:
+            return ctx.regs.l;
+        case RT_HL:
+            return read_bus(read_register(RT_HL));
+        case RT_A:
+            return ctx.regs.a;
+        default:
+            printf("**ERR INVALID REG8: %d\n", rt);
+            exit(-10);
+    }
+}
+
+void set_reg8(reg_type rt, uint8_t val)
+{
+    switch (rt)
+    {
+        case RT_B:
+            ctx.regs.b = val;
+            break;
+        case RT_C:
+            ctx.regs.c = val;
+            break;
+        case RT_D:
+            ctx.regs.d = val;
+            break;
+        case RT_E:
+            ctx.regs.e = val;
+            break;
+        case RT_H:
+            ctx.regs.h = val;
+            break;
+        case RT_L:
+            ctx.regs.l = val;
+            break;
+        case RT_HL:
+            write_bus(read_register(RT_HL), val);
+            break;
+        case RT_A:
+            ctx.regs.a = val;
+            break;
+        default:
+            printf("**ERR INVALID REG8: %d\n", rt);
+            exit(-10);
+    }
+}

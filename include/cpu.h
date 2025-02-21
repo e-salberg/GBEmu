@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <instructions.h>
 
@@ -57,6 +58,9 @@ cpu_registers *get_cpu_registers();
 
 uint16_t read_register(reg_type rt);
 void set_register(reg_type rt, uint16_t val);
+
+uint8_t read_reg8(reg_type rt);
+void set_reg8(reg_type rt, uint8_t val);
 
 typedef void (*instruction_function)(cpu_context *);
 instruction_function get_instruction_function(instruction_type type);

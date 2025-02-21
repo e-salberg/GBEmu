@@ -77,6 +77,11 @@ typedef enum {
     IN_DI,
     IN_HALT,
     IN_STOP,
+    IN_CCF,
+    IN_SCF,
+    IN_DAA,
+    IN_CPL,
+    IN_CB,
 } instruction_type;
 
 typedef enum {
