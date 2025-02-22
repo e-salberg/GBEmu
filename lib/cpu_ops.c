@@ -580,37 +580,42 @@ static void handle_single_operand_cb_instructions(cpu_context *ctx, uint8_t opco
 {
     switch(opcode)
     {
-        case 0b000:
+        case 0b000: {
             // rlc r8
             bool c = CHECK_BIT(data, 7);
             set_reg8(rt, (data << 1) | c);
             set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
             break;
-        case 0b001:
+        }
+        case 0b001: {
             // rrc r8
             uint8_t c = CHECK_BIT(data, 0);
             set_reg8(rt, (data >> 1) | (c << 7));
             set_flags(ctx, read_reg8 == 0, 0, 0, c);
             break;
-        case 0b010:
+        }
+        case 0b010: {
             // rl r8
             bool c = CHECK_BIT(data, 7);
             set_reg8(rt, (data << 1) | CPU_FLAG_C);
             set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
             break;
-        case 0b11:
+        }
+        case 0b11: {
             // rr r8
             uint8_t c = CHECK_BIT(data, 0);
             set_reg8(rt, (data >> 1) | (CPU_FLAG_C << 7));
             set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
             break;
-        case 0b100:
+        }
+        case 0b100: {
             // sla r8
             bool c = CHECK_BIT(data, 7);
             set_reg8(rt, data << 1);
             set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
             break;
-        case 0b101:
+        }
+        case 0b101: {
             // sra r8
             // Shift Right Arithmetically register r8 (bit 7 of r8 is unchanged).
             bool c = CHECK_BIT(data, 0);
@@ -618,18 +623,21 @@ static void handle_single_operand_cb_instructions(cpu_context *ctx, uint8_t opco
             set_reg8(rt, (data >> 1) | (bit7 << 7));
             set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
             break;
-        case 0b110:
+        }
+        case 0b110: {
             // swap r8
             uint8_t result = ((data & 0xF0) >> 4) | ((data & 0xF) << 4);
             set_reg8(rt, result);
             set_flags(ctx, result == 0, 0, 0, 0);
             break;
-        case 0b111:
+        }
+        case 0b111: {
             // srl r8
             bool c = CHECK_BIT(data, 0);
             set_reg8(rt, data >> 1);
             set_flags(ctx, read_reg8(rt) == 0, 0, 0, c);
             break;
+        }
         default:
             break;
     }

@@ -1,4 +1,5 @@
 #include <bus.h>
+#include <io.h>
 #include <cpu.h>
 #include <cartridge.h>
 #include <ram.h>
@@ -30,7 +31,7 @@ uint8_t read_bus(uint16_t address)
     else if (address < 0xA000)
     {
         printf("UNSUPPORTED BUS READ FOR VRAM: %04X!\n", address);
-        exit(-7);
+        return 0;
     }
     else if (address < 0xC000)
     {
@@ -48,7 +49,7 @@ uint8_t read_bus(uint16_t address)
     else if (address < 0xFEA0)
     {
         printf("UNSUPPORTED BUS READ FOR OAM: %04X!\n", address);
-        exit(-7);
+        return 0;
     }
     else if (address < 0xFF00)
     {
@@ -57,8 +58,7 @@ uint8_t read_bus(uint16_t address)
     }
     else if (address < 0xFF80)
     {
-        printf("UNSUPPORTED BUS READ FOR I/O REGISTERS: %04X!\n", address);
-        exit(-7);
+        return read_io_registers(address);
     }
     else if (address < 0xFFFF)
     {
@@ -81,7 +81,6 @@ void write_bus(uint16_t address, uint8_t value)
     else if (address < 0xA000)
     {
         printf("UNSUPPORTED BUS WRITE FOR VRAM: %04X!\n", address);
-        exit(-7);
     }
     else if (address < 0xC000)
     {
@@ -98,7 +97,6 @@ void write_bus(uint16_t address, uint8_t value)
     else if (address < 0xFEA0)
     {
         printf("UNSUPPORTED BUS WRITE FOR OAM: %04X!\n", address);
-        exit(-7);
     }
     else if (address < 0xFF00)
     {
@@ -106,8 +104,7 @@ void write_bus(uint16_t address, uint8_t value)
     }
     else if (address < 0xFF80)
     {
-        printf("UNSUPPORTED BUS WRITE FOR I/O REGISTERS: %04X!\n", address);
-        exit(-7);
+        write_io_registers(address, value);
     }
     else if (address < 0xFFFF)
     {
