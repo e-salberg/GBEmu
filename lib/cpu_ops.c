@@ -240,43 +240,47 @@ static void ldh(cpu_context *ctx)
 static void inc(cpu_context *ctx)
 {
     uint16_t data = ctx->fetched_data + 1;
-
+    
     if (ctx->is_dest_memory)
     {  
-        write_bus(ctx->dest_in_memory, data &= 0xFF);
+        data &= 0xFF;
+        write_bus(ctx->dest_in_memory, data);
         emu_cycles(1);
     }
     else
     {
         set_register(ctx->current_instruction->reg_1, data);
+        data = read_register(ctx->current_instruction->reg_1);
         if (is_16_bit(ctx->current_instruction->reg_1))
         {
             emu_cycles(1);
             return;
         }
     }
-    set_flags(ctx, read_register(ctx->current_instruction->reg_1) == 0, 0, (data & 0xF) == 0, -1);
+    set_flags(ctx, data == 0, 0, (data & 0xF) == 0, -1);
 }
 
 static void dec(cpu_context *ctx)
 {
     uint16_t data = ctx->fetched_data - 1;
-
+    
     if (ctx->is_dest_memory)
     {  
-        write_bus(ctx->dest_in_memory, data &= 0xFF);
+        data &= 0xFF;
+        write_bus(ctx->dest_in_memory, data);
         emu_cycles(1);
     }
     else
     {
         set_register(ctx->current_instruction->reg_1, data);
+        data = read_register(ctx->current_instruction->reg_1);
         if (is_16_bit(ctx->current_instruction->reg_1))
         {
             emu_cycles(1);
             return;
         }
     }
-    set_flags(ctx, data == 0, 1, data & 0xF == 0xF, -1);
+    set_flags(ctx, data == 0, 1, (data & 0xF) == 0xF, -1);
 }
 
 static void jp(cpu_context *ctx)
