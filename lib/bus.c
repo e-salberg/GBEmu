@@ -68,8 +68,8 @@ uint8_t read_bus(uint16_t address)
     {
         return get_interrupt_enable();
     }
-    printf("UNSUPPORTED BUS READ: %04X!\n", address);
-    return 0;
+    printf("INVALID BUS READ: %04X!\n", address);
+    exit(-7);
 }
 
 void write_bus(uint16_t address, uint8_t value)
@@ -116,7 +116,8 @@ void write_bus(uint16_t address, uint8_t value)
     }
     else 
     {
-        printf("UNSUPPORTED BUS WRITE: %04X!\n", address);
+        printf("INVALID BUS WRITE: %04X!\n", address);
+        exit(-7);
     } 
 }
 

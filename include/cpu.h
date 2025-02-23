@@ -71,5 +71,7 @@ void set_interrupt_enable(uint8_t val);
 uint8_t get_interrupt_flags();
 void set_interrupt_flags(uint8_t val);
 
+void inst_to_str(cpu_context *ctx, char *str);
+
 void handle_cpu_interrupts(cpu_context *ctx);
 void request_cpu_interrupt(interrupt_type type);

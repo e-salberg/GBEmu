@@ -1,6 +1,7 @@
 #include <cpu.h>
 #include <bus.h>
 #include <emu.h>
+#include <dbg.h>
 #include <instructions.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,7 +15,13 @@ void cpu_init()
 {
     ctx.regs.pc = 0x100;
     ctx.regs.sp = 0xFFFE;
+    *((short *)&ctx.regs.a) = 0xB001;
+    *((short *)&ctx.regs.b) = 0x1300;
+    *((short *)&ctx.regs.d) = 0xD800;
+    *((short *)&ctx.regs.h) = 0x4D01;
+    ctx.interrupt_enable = 0;
     ctx.interrupt_master_enable = false;
+    ctx.enabling_ime = false;
 }
 
 static void fetch_instruction()
@@ -52,10 +59,16 @@ bool cpu_step()
             ctx.regs.f & (1 << 4) ? 'C' : '-'
         );
 
+        char inst[16];
+        inst_to_str(&ctx, inst);
+
         printf("%04X: %-12s (%02X %02X %02X) A: %02X F: %s BC: %02X%02X DE: %02X%02X HL: %02X%02X\n", 
-            pc, get_instruction_name(ctx.current_instruction->type), ctx.current_opcode,
+            pc, inst, ctx.current_opcode,
             read_bus(pc + 1), read_bus(pc + 2), ctx.regs.a, flags, ctx.regs.b, ctx.regs.c,
             ctx.regs.d, ctx.regs.e, ctx.regs.h, ctx.regs.l);
+
+        dbg_update();
+        dbg_print();        
     } 
     else 
     {
