@@ -255,7 +255,7 @@ static void inc(cpu_context *ctx)
             return;
         }
     }
-    set_flags(ctx, data == 0, 0, data & 0xF == 0, -1);
+    set_flags(ctx, read_register(ctx->current_instruction->reg_1) == 0, 0, (data & 0xF) == 0, -1);
 }
 
 static void dec(cpu_context *ctx)
