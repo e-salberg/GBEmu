@@ -341,7 +341,13 @@ static void pop(cpu_context *ctx)
     emu_cycles(1);
     uint16_t hi = read_bus(ctx->regs.sp++);
     emu_cycles(1);
-    set_register(ctx->current_instruction->reg_1, (hi << 8) | lo);
+    uint16_t result = (hi << 8) | lo;
+    set_register(ctx->current_instruction->reg_1, result);
+
+    if (ctx->current_instruction->reg_1 == RT_AF)
+    {
+        set_register(ctx->current_instruction->reg_1, result & 0xFFF0);
+    }
 }
 
 static void add(cpu_context *ctx)
