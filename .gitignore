@@ -1,6 +1,8 @@
 /build
 /gb
 
+/.cache
+
 # Prerequisites
 *.d
 
