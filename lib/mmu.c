@@ -1,5 +1,7 @@
 #include <mmu.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /*
     Memory Map
@@ -17,15 +19,25 @@
     0xFFFF - 0xFFFF : Interrupt Enable Register (IE)
 */
 
+mmu_t *mmu_init() {
+  mmu_t *mmu = (mmu_t *)malloc(sizeof(mmu_t));
+  return mmu;
+}
+
+void mmu_load_rom(mmu_t *mmu, cartridge_t *cartridge) { mmu->cart = cartridge; }
+
 uint8_t mmu_read(mmu_t *mmu, uint16_t address) {
   if (address < 0x4000) {
-    return mmu->rom_bank[0][address];
+    // return mmu->rom_bank[0][address];
+    return mmu->cart->rom_data[address];
   } else if (address < 0x8000) {
-    return mmu->rom_bank[1][address - 0x4000];
+    // return mmu->rom_bank[1][address - 0x4000];
+    return mmu->cart->rom_data[address];
   } else if (address < 0xA000) {
     return mmu->vram[address - 0x8000];
   } else if (address < 0xC000) {
-    return mmu->external_ram[address - 0xA000];
+    // return mmu->external_ram[address - 0xA000];
+    return mmu->cart->rom_data[address];
   } else if (address < 0xE000) {
     return mmu->wram[address - 0xC000];
   } else if (address < 0xFE00) {
@@ -50,13 +62,16 @@ uint8_t mmu_read(mmu_t *mmu, uint16_t address) {
 
 void mmu_write(mmu_t *mmu, uint16_t address, uint8_t value) {
   if (address < 0x4000) {
-    mmu->rom_bank[0][address] = value;
+    // mmu->rom_bank[0][address] = value;
+    mmu->cart->rom_data[address] = value;
   } else if (address < 0x8000) {
-    mmu->rom_bank[1][address - 0x4000] = value;
+    // mmu->rom_bank[1][address - 0x4000] = value;
+    mmu->cart->rom_data[address] = value;
   } else if (address < 0xA000) {
     mmu->vram[address - 0x8000] = value;
   } else if (address < 0xC000) {
-    mmu->external_ram[address - 0xA000] = value;
+    // mmu->external_ram[address - 0xA000] = value;
+    mmu->cart->rom_data[address] = value;
   } else if (address < 0xE000) {
     mmu->wram[address - 0xC000] = value;
   } else if (address < 0xFE00) {

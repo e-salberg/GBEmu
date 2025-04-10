@@ -1,4 +1,5 @@
 #include <cartridge.h>
+#include <mmu.h>
 #include <stdio.h>
 
 int main(int argc, char **argv) {
@@ -12,4 +13,7 @@ int main(int argc, char **argv) {
     printf("Failed to load cartridge");
     return -2;
   }
+
+  mmu_t *mmu = mmu_init();
+  mmu_load_rom(mmu, cartridge);
 }
