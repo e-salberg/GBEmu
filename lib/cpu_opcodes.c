@@ -1,142 +1,185 @@
+#include "cpu.h"
 #include <cpu_opcodes.h>
 
 // 0x0X
 void instruction_00(cpu_t *cpu, mmu_t *mmu) { /* NO-OP */ }
+void instruction_01(cpu_t *cpu, mmu_t *mmu) { ld_r16_imm16(RT_BC, cpu, mmu); }
+void instruction_02(cpu_t *cpu, mmu_t *mmu) { ld_r16mem_a(RT_BC, cpu, mmu); }
 void instruction_03(cpu_t *cpu, mmu_t *mmu) { inc_r16(RT_BC, cpu); }
 void instruction_04(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_B, cpu, mmu); }
 void instruction_05(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_B, cpu, mmu); }
+void instruction_06(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_B, cpu, mmu); }
+void instruction_0A(cpu_t *cpu, mmu_t *mmu) { ld_a_r16mem(RT_BC, cpu, mmu); }
 void instruction_0B(cpu_t *cpu, mmu_t *mmu) { dec_r16(RT_BC, cpu); }
 void instruction_0C(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_C, cpu, mmu); }
 void instruction_0D(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_C, cpu, mmu); }
+void instruction_0E(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_C, cpu, mmu); }
 
 // 0x1X
+void instruction_11(cpu_t *cpu, mmu_t *mmu) { ld_r16_imm16(RT_DE, cpu, mmu); }
+void instruction_12(cpu_t *cpu, mmu_t *mmu) { ld_r16mem_a(RT_DE, cpu, mmu); }
 void instruction_13(cpu_t *cpu, mmu_t *mmu) { inc_r16(RT_DE, cpu); }
 void instruction_14(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_D, cpu, mmu); }
 void instruction_15(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_D, cpu, mmu); }
+void instruction_16(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_D, cpu, mmu); }
+void instruction_1A(cpu_t *cpu, mmu_t *mmu) { ld_a_r16mem(RT_DE, cpu, mmu); }
 void instruction_1B(cpu_t *cpu, mmu_t *mmu) { dec_r16(RT_DE, cpu); }
 void instruction_1C(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_E, cpu, mmu); }
 void instruction_1D(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_E, cpu, mmu); }
+void instruction_1E(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_E, cpu, mmu); }
 
 // 0x2X
+void instruction_21(cpu_t *cpu, mmu_t *mmu) { ld_r16_imm16(RT_HL, cpu, mmu); }
+void instruction_22(cpu_t *cpu, mmu_t *mmu) { ld_r16mem_a(RT_HLI, cpu, mmu); }
 void instruction_23(cpu_t *cpu, mmu_t *mmu) { inc_r16(RT_HL, cpu); }
 void instruction_24(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_H, cpu, mmu); }
 void instruction_25(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_H, cpu, mmu); }
+void instruction_26(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_H, cpu, mmu); }
+void instruction_2A(cpu_t *cpu, mmu_t *mmu) { ld_a_r16mem(RT_HLI, cpu, mmu); }
 void instruction_2B(cpu_t *cpu, mmu_t *mmu) { dec_r16(RT_HL, cpu); }
 void instruction_2C(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_L, cpu, mmu); }
 void instruction_2D(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_L, cpu, mmu); }
+void instruction_2E(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_L, cpu, mmu); }
 
 // 0x3X
+void instruction_31(cpu_t *cpu, mmu_t *mmu) { ld_r16_imm16(RT_SP, cpu, mmu); }
+void instruction_32(cpu_t *cpu, mmu_t *mmu) { ld_r16mem_a(RT_HLD, cpu, mmu); }
 void instruction_33(cpu_t *cpu, mmu_t *mmu) { inc_r16(RT_SP, cpu); }
 void instruction_34(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_HL, cpu, mmu); }
 void instruction_35(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_HL, cpu, mmu); }
+void instruction_36(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_HL, cpu, mmu); }
+void instruction_3A(cpu_t *cpu, mmu_t *mmu) { ld_a_r16mem(RT_HLD, cpu, mmu); }
 void instruction_3B(cpu_t *cpu, mmu_t *mmu) { dec_r16(RT_SP, cpu); }
 void instruction_3C(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_A, cpu, mmu); }
 void instruction_3D(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_A, cpu, mmu); }
+void instruction_3E(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_A, cpu, mmu); }
 
 opfunc_t optable[0x100] = {
     // 0x0X
     [0x00] = instruction_00,
+    [0x01] = instruction_01,
+    [0x02] = instruction_02,
     [0x03] = instruction_03,
     [0x04] = instruction_04,
     [0x05] = instruction_05,
+    [0x06] = instruction_06,
+    [0x0A] = instruction_0A,
     [0x0B] = instruction_0B,
     [0x0C] = instruction_0C,
     [0x0D] = instruction_0D,
+    [0x0E] = instruction_0E,
 
     // 0x1X
+    [0x11] = instruction_11,
+    [0x12] = instruction_12,
     [0x13] = instruction_13,
     [0x14] = instruction_14,
     [0x15] = instruction_15,
+    [0x16] = instruction_16,
+    [0x1A] = instruction_1A,
     [0x1B] = instruction_1B,
     [0x1C] = instruction_1C,
     [0x1D] = instruction_1D,
+    [0x1E] = instruction_1E,
 
     // 0x2X
+    [0x21] = instruction_21,
+    [0x22] = instruction_22,
     [0x23] = instruction_23,
     [0x24] = instruction_24,
     [0x25] = instruction_25,
+    [0x26] = instruction_26,
+    [0x2A] = instruction_2A,
     [0x2B] = instruction_2B,
     [0x2C] = instruction_2C,
     [0x2D] = instruction_2D,
+    [0x2E] = instruction_2E,
 
     // 0x3X
+    [0x31] = instruction_31,
+    [0x32] = instruction_32,
     [0x33] = instruction_33,
     [0x34] = instruction_34,
     [0x35] = instruction_35,
+    [0x36] = instruction_36,
+    [0x3A] = instruction_3A,
     [0x3B] = instruction_3B,
     [0x3C] = instruction_3C,
     [0x3D] = instruction_3D,
+    [0x3E] = instruction_3E,
 };
 
 char *inst_to_string[0x100] = {
     // 0x0X
     [0x00] = "NOP",
+    [0x01] = "LD BC, n16",
+    [0x02] = "LD [BC], A",
     [0x03] = "INC BC",
     [0x04] = "INC B",
     [0x05] = "DEC B",
-    [0x06] = "",
+    [0x06] = "LD B, n8",
     [0x07] = "",
     [0x08] = "",
     [0x09] = "",
-    [0x0A] = "",
+    [0x0A] = "LD A, [BC]",
     [0x0B] = "DEC BC",
     [0x0C] = "INC C",
     [0x0D] = "DEC C",
-    [0x0E] = "",
+    [0x0E] = "LD C, n8",
     [0x0F] = "",
 
     // 0x1X
     [0x10] = "",
-    [0x11] = "",
-    [0x12] = "",
+    [0x11] = "LD DE, n16",
+    [0x12] = "LD [DE], A",
     [0x13] = "INC DE",
     [0x14] = "INC D",
     [0x15] = "DEC D",
-    [0x16] = "",
+    [0x16] = "LD D, n8",
     [0x17] = "",
     [0x18] = "",
     [0x19] = "",
-    [0x1A] = "",
+    [0x1A] = "LD A, [DE]",
     [0x1B] = "DEC DE",
     [0x1C] = "INC E",
     [0x1D] = "DEC E",
-    [0x1E] = "",
+    [0x1E] = "LD E, n8",
     [0x1F] = "",
 
     // 0x2X
     [0x20] = "",
-    [0x21] = "",
-    [0x22] = "",
+    [0x21] = "LD HL, n16",
+    [0x22] = "LD [HL+], A",
     [0x23] = "INC HL",
     [0x24] = "INC H",
     [0x25] = "DEC H",
-    [0x26] = "",
+    [0x26] = "LD H, n8",
     [0x27] = "",
     [0x28] = "",
     [0x29] = "",
-    [0x2A] = "",
+    [0x2A] = "LD A, [HLI]",
     [0x2B] = "DEC HL",
     [0x2C] = "INC L",
     [0x2D] = "DEC L",
-    [0x2E] = "",
+    [0x2E] = "LD L, n8",
     [0x2F] = "",
 
     // 0x3X
     [0x30] = "",
-    [0x31] = "",
-    [0x32] = "",
+    [0x31] = "LD SP, n16",
+    [0x32] = "LD [HL-], A",
     [0x33] = "INC SP",
     [0x34] = "INC [HL]",
     [0x35] = "DEC [HL]",
-    [0x36] = "",
+    [0x36] = "LD [HL], n8",
     [0x37] = "",
     [0x38] = "",
     [0x39] = "",
-    [0x3A] = "",
+    [0x3A] = "LD A, [HLD]",
     [0x3B] = "DEC SP",
     [0x3C] = "INC A",
     [0x3D] = "DEC A",
-    [0x3E] = "",
+    [0x3E] = "LD A, n8",
     [0x3F] = "",
 
     // 0x4X
