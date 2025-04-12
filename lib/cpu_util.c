@@ -34,9 +34,9 @@ uint16_t register_read(reg_type rt, cpu_t *cpu) {
   case RT_HLD:
     return reverse(*((uint16_t *)&cpu->regs.h));
   case RT_SP:
-    return reverse(*((uint16_t *)&cpu->regs.sp));
+    return cpu->regs.sp;
   case RT_PC:
-    return reverse(*((uint16_t *)&cpu->regs.pc));
+    return cpu->regs.pc;
   default:
     return 0;
   }
@@ -46,20 +46,28 @@ void register_set(reg_type rt, uint16_t val, cpu_t *cpu) {
   switch (rt) {
   case RT_A:
     cpu->regs.a = val & 0xFF;
+    break;
   case RT_F:
     cpu->regs.f = val & 0xFF;
+    break;
   case RT_B:
     cpu->regs.b = val & 0xFF;
+    break;
   case RT_C:
     cpu->regs.c = val & 0xFF;
+    break;
   case RT_D:
     cpu->regs.d = val & 0xFF;
+    break;
   case RT_E:
     cpu->regs.e = val & 0xFF;
+    break;
   case RT_H:
     cpu->regs.h = val & 0xFF;
+    break;
   case RT_L:
     cpu->regs.l = val & 0xFF;
+    break;
   case RT_AF:
     *((uint16_t *)&cpu->regs.a) = reverse(val);
     break;

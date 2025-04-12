@@ -127,6 +127,14 @@ void instruction_7D(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_A, RT_L, cpu, mmu); }
 void instruction_7E(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_A, RT_HL, cpu, mmu); }
 void instruction_7F(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_A, RT_A, cpu, mmu); }
 
+// 0xEX
+void instruction_EA(cpu_t *cpu, mmu_t *mmu) { ld_addr16_a(cpu, mmu); }
+
+// 0xFX
+void instruction_F8(cpu_t *cpu, mmu_t *mmu) { ld_hl_sp_plus_imm8(cpu, mmu); }
+void instruction_F9(cpu_t *cpu, mmu_t *mmu) { ld_sp_hl(cpu, mmu); }
+void instruction_FA(cpu_t *cpu, mmu_t *mmu) { ld_a_addr16(cpu, mmu); }
+
 opfunc_t optable[0x100] = {
     // 0x0X
     [0x00] = instruction_00,
@@ -253,6 +261,14 @@ opfunc_t optable[0x100] = {
     [0x7D] = instruction_7D,
     [0x7E] = instruction_7E,
     [0x7F] = instruction_7F,
+
+    // 0xEX
+    [0xEA] = instruction_EA,
+
+    // 0xFX
+    [0xF8] = instruction_F8,
+    [0xF9] = instruction_F9,
+    [0xFA] = instruction_FA,
 };
 
 char *inst_to_string[0x100] = {
@@ -514,7 +530,7 @@ char *inst_to_string[0x100] = {
     [0xE7] = "",
     [0xE8] = "",
     [0xE9] = "",
-    [0xEA] = "",
+    [0xEA] = "LD [a16], A",
     [0xEE] = "",
     [0xEF] = "",
 
@@ -526,9 +542,9 @@ char *inst_to_string[0x100] = {
     [0xF5] = "",
     [0xF6] = "",
     [0xF7] = "",
-    [0xF8] = "",
-    [0xF9] = "",
-    [0xFA] = "",
+    [0xF8] = "LD HL, SP + e8",
+    [0xF9] = "LD SP, HL",
+    [0xFA] = "LD A, [a16]",
     [0xFB] = "",
     [0xFE] = "",
     [0xFF] = "",

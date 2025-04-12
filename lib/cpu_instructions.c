@@ -61,6 +61,27 @@ void ld_addr16_sp(cpu_t *cpu, mmu_t *mmu) {
   // m-cycle
 }
 
+void ld_addr16_a(cpu_t *cpu, mmu_t *mmu) {
+  uint8_t lo = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint8_t hi = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint16_t addr = (hi << 8) | lo;
+  mmu_write(mmu, addr, cpu->regs.a);
+  // m-cycle
+}
+
+void ld_a_addr16(cpu_t *cpu, mmu_t *mmu) {
+  uint8_t lo = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint8_t hi = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint16_t addr = (hi << 8) | lo;
+  uint8_t data = mmu_read(mmu, addr);
+  // m-cycle
+  cpu->regs.a = data;
+}
+
 void ld_r8_imm8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint8_t data = mmu_read(mmu, cpu->regs.pc++);
   // m-cycle
@@ -81,6 +102,24 @@ void ld_r8_r8(reg_type dest, reg_type source, cpu_t *cpu, mmu_t *mmu) {
   if (dest == RT_HL) {
     // m-cycle
   }
+}
+
+void ld_hl_sp_plus_imm8(cpu_t *cpu, mmu_t *mmu) {
+  int8_t data = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+
+  uint8_t h = (cpu->regs.sp & 0xF) + (data & 0xF) > 0xF;
+  uint8_t c = (cpu->regs.sp & 0xFF) + data > 0xFF;
+  // m-cycle
+
+  // TODO - double check this logic
+  // should be set L/get flags, cycle, set H
+  register_set(RT_HL, cpu->regs.sp + data, cpu);
+}
+
+void ld_sp_hl(cpu_t *cpu, mmu_t *mmu) {
+  cpu->regs.sp = register_read(RT_HL, cpu);
+  // m-cycle
 }
 
 void inc_r16(reg_type rt, cpu_t *cpu) {
