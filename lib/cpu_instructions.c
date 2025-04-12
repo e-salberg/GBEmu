@@ -49,10 +49,38 @@ void ld_a_r16mem(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   }
 }
 
+void ld_addr16_sp(cpu_t *cpu, mmu_t *mmu) {
+  uint8_t lo = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint8_t hi = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint16_t addr = (hi << 8) | lo;
+  mmu_write(mmu, addr, cpu->regs.sp & 0xFF);
+  // m-cycle
+  mmu_write(mmu, addr + 1, (cpu->regs.sp >> 8) & 0xFF);
+  // m-cycle
+}
+
 void ld_r8_imm8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint8_t data = mmu_read(mmu, cpu->regs.pc++);
   // m-cycle
   register_set8(rt, data, cpu, mmu);
+}
+
+void ld_r8_r8(reg_type dest, reg_type source, cpu_t *cpu, mmu_t *mmu) {
+  if (source == dest) {
+    // Loading a register into inself is a no-op
+    return;
+  }
+
+  uint8_t data = register_read8(source, cpu, mmu);
+  if (source == RT_HL) {
+    // m-cycle
+  }
+  register_set8(dest, data, cpu, mmu);
+  if (dest == RT_HL) {
+    // m-cycle
+  }
 }
 
 void inc_r16(reg_type rt, cpu_t *cpu) {
