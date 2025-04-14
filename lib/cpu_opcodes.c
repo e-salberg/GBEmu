@@ -161,7 +161,9 @@ void instruction_DC(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_C, cpu, mmu); }
 void instruction_DF(cpu_t *cpu, mmu_t *mmu) { rst(0x18, cpu, mmu); }
 
 // 0xEX
+void instruction_E0(cpu_t *cpu, mmu_t *mmu) { ldh_addr_a(RT_NONE, cpu, mmu); }
 void instruction_E1(cpu_t *cpu, mmu_t *mmu) { pop_r16stk(RT_HL, cpu, mmu); }
+void instruction_E2(cpu_t *cpu, mmu_t *mmu) { ldh_addr_a(RT_C, cpu, mmu); }
 void instruction_E5(cpu_t *cpu, mmu_t *mmu) { push_r16stk(RT_HL, cpu, mmu); }
 void instruction_E7(cpu_t *cpu, mmu_t *mmu) { rst(0x20, cpu, mmu); }
 void instruction_E9(cpu_t *cpu, mmu_t *mmu) { jp_hl(cpu); }
@@ -169,7 +171,9 @@ void instruction_EA(cpu_t *cpu, mmu_t *mmu) { ld_addr16_a(cpu, mmu); }
 void instruction_EF(cpu_t *cpu, mmu_t *mmu) { rst(0x28, cpu, mmu); }
 
 // 0xFX
+void instruction_F0(cpu_t *cpu, mmu_t *mmu) { ldh_a_addr(RT_NONE, cpu, mmu); }
 void instruction_F1(cpu_t *cpu, mmu_t *mmu) { pop_r16stk(RT_AF, cpu, mmu); }
+void instruction_F2(cpu_t *cpu, mmu_t *mmu) { ldh_a_addr(RT_C, cpu, mmu); }
 void instruction_F5(cpu_t *cpu, mmu_t *mmu) { push_r16stk(RT_AF, cpu, mmu); }
 void instruction_F7(cpu_t *cpu, mmu_t *mmu) { rst(0x30, cpu, mmu); }
 void instruction_F8(cpu_t *cpu, mmu_t *mmu) { ld_hl_sp_plus_imm8(cpu, mmu); }
@@ -338,7 +342,9 @@ opfunc_t optable[0x100] = {
     [0xDF] = instruction_DF,
 
     // 0xEX
+    [0xE0] = instruction_E0,
     [0xE1] = instruction_E1,
+    [0xE2] = instruction_E2,
     [0xE5] = instruction_E5,
     [0xE7] = instruction_E7,
     [0xE9] = instruction_E9,
@@ -346,7 +352,9 @@ opfunc_t optable[0x100] = {
     [0xEF] = instruction_EF,
 
     // 0xFX
+    [0xF0] = instruction_F0,
     [0xF1] = instruction_F1,
+    [0xF2] = instruction_F2,
     [0xF5] = instruction_F5,
     [0xF7] = instruction_F7,
     [0xF8] = instruction_F8,
@@ -606,9 +614,9 @@ char *inst_to_string[0x100] = {
     [0xDF] = "RST 0x18",
 
     // 0xEX
-    [0xE0] = "",
+    [0xE0] = "LDH [a8], A",
     [0xE1] = "POP HL",
-    [0xE2] = "",
+    [0xE2] = "LDH [C], A",
     [0xE5] = "PUSH HL",
     [0xE6] = "",
     [0xE7] = "RST 0x20",
@@ -619,9 +627,9 @@ char *inst_to_string[0x100] = {
     [0xEF] = "RST 0x28",
 
     // 0xFX
-    [0xF0] = "",
+    [0xF0] = "LDH A, [a8]",
     [0xF1] = "POP AF",
-    [0xF2] = "",
+    [0xF2] = "LDH A, [C]",
     [0xF3] = "",
     [0xF5] = "PUSH AF",
     [0xF6] = "",

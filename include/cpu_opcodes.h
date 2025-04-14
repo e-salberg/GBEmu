@@ -29,6 +29,8 @@ void ld_addr16_a(cpu_t *cpu, mmu_t *mmu);
 void ld_a_addr16(cpu_t *cpu, mmu_t *mmu);
 void ld_hl_sp_plus_imm8(cpu_t *cpu, mmu_t *mmu);
 void ld_sp_hl(cpu_t *cpu, mmu_t *mmu);
+void ldh_a_addr(reg_type rt, cpu_t *cpu, mmu_t *mmu);
+void ldh_addr_a(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 
 void push_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 void pop_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu);

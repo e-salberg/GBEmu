@@ -198,6 +198,30 @@ void ld_sp_hl(cpu_t *cpu, mmu_t *mmu) {
   // m-cycle
 }
 
+void ldh_a_addr(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
+  uint16_t addr;
+  if (rt == RT_C) {
+    addr = 0xFF00 | cpu->regs.c;
+  } else {
+    addr = 0xFF00 | mmu_read(cpu->regs.pc++, mmu);
+    // m-cycle
+  }
+  cpu->regs.a = mmu_read(addr, mmu);
+  // m-cycle
+}
+
+void ldh_addr_a(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
+  uint16_t addr;
+  if (rt == RT_C) {
+    addr = 0xFF00 | cpu->regs.c;
+  } else {
+    addr = 0xFF00 | mmu_read(cpu->regs.pc++, mmu);
+    // m-cycle
+  }
+  mmu_write(addr, cpu->regs.a, mmu);
+  // m-cycle
+}
+
 void push_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint16_t data = register_read(rt, cpu);
   cpu->regs.sp--;
