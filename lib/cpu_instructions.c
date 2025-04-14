@@ -310,3 +310,22 @@ void add_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   int h = (cpu->regs.a & 0xF) + (data & 0xF) > 0xF;
   set_flags(z, 0, h, c, cpu);
 }
+
+void adc_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
+  uint8_t data;
+  if (rt == RT_NONE) {
+    data = mmu_read(cpu->regs.pc++, mmu);
+  } else {
+    data = register_read8(rt, cpu, mmu);
+  }
+  if (rt == RT_HL || rt == RT_NONE) {
+    // m-cycle
+  }
+  int c = CHECK_BIT(cpu->regs.f, 4);
+  uint8_t result = cpu->regs.a + data + c;
+  cpu->regs.a = result;
+
+  int h = (cpu->regs.a & 0xF) + (data & 0xF) + (c & 0xF) > 0xF;
+  c = (cpu->regs.a + data + c) > 0xFF;
+  set_flags(result == 0, 0, h, c, cpu);
+}

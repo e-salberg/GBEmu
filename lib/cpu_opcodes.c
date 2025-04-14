@@ -145,6 +145,14 @@ void instruction_84(cpu_t *cpu, mmu_t *mmu) { add_a_r8(RT_H, cpu, mmu); }
 void instruction_85(cpu_t *cpu, mmu_t *mmu) { add_a_r8(RT_L, cpu, mmu); }
 void instruction_86(cpu_t *cpu, mmu_t *mmu) { add_a_r8(RT_HL, cpu, mmu); }
 void instruction_87(cpu_t *cpu, mmu_t *mmu) { add_a_r8(RT_A, cpu, mmu); }
+void instruction_88(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_B, cpu, mmu); }
+void instruction_89(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_C, cpu, mmu); }
+void instruction_8A(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_D, cpu, mmu); }
+void instruction_8B(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_E, cpu, mmu); }
+void instruction_8C(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_H, cpu, mmu); }
+void instruction_8D(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_L, cpu, mmu); }
+void instruction_8E(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_HL, cpu, mmu); }
+void instruction_8F(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_A, cpu, mmu); }
 
 // 0xCX
 void instruction_C0(cpu_t *cpu, mmu_t *mmu) { ret(CC_NZ, cpu, mmu); }
@@ -159,6 +167,7 @@ void instruction_C8(cpu_t *cpu, mmu_t *mmu) { ret(CC_Z, cpu, mmu); }
 void instruction_C9(cpu_t *cpu, mmu_t *mmu) { ret(CC_NONE, cpu, mmu); }
 void instruction_CA(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_Z, cpu, mmu); }
 void instruction_CC(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_Z, cpu, mmu); }
+void instruction_CE(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_NONE, cpu, mmu); }
 void instruction_CD(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NONE, cpu, mmu); }
 void instruction_CF(cpu_t *cpu, mmu_t *mmu) { rst(0x08, cpu, mmu); }
 
