@@ -16,6 +16,7 @@ void jp_hl(cpu_t *cpu);
 void call_imm16(condition_code cond, cpu_t *cpu, mmu_t *mmu);
 void ret(condition_code cond, cpu_t *cpu, mmu_t *mmu);
 void reti(cpu_t *cpu, mmu_t *mmu);
+void rst(uint8_t addr, cpu_t *cpu, mmu_t *mmu);
 
 void ld_r16_imm16(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 void ld_r16mem_a(reg_type rt, cpu_t *cpu, mmu_t *mmu);

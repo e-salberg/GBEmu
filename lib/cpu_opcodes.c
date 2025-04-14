@@ -132,29 +132,37 @@ void instruction_C0(cpu_t *cpu, mmu_t *mmu) { ret(CC_NZ, cpu, mmu); }
 void instruction_C2(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_NZ, cpu, mmu); }
 void instruction_C3(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_NONE, cpu, mmu); }
 void instruction_C4(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NZ, cpu, mmu); }
+void instruction_C7(cpu_t *cpu, mmu_t *mmu) { rst(0x00, cpu, mmu); }
 void instruction_C8(cpu_t *cpu, mmu_t *mmu) { ret(CC_Z, cpu, mmu); }
 void instruction_C9(cpu_t *cpu, mmu_t *mmu) { ret(CC_NONE, cpu, mmu); }
 void instruction_CA(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_Z, cpu, mmu); }
 void instruction_CC(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_Z, cpu, mmu); }
 void instruction_CD(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NONE, cpu, mmu); }
+void instruction_CF(cpu_t *cpu, mmu_t *mmu) { rst(0x08, cpu, mmu); }
 
 // 0xDX
 void instruction_D0(cpu_t *cpu, mmu_t *mmu) { ret(CC_NC, cpu, mmu); }
 void instruction_D2(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_NC, cpu, mmu); }
 void instruction_D4(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NC, cpu, mmu); }
+void instruction_D7(cpu_t *cpu, mmu_t *mmu) { rst(0x10, cpu, mmu); }
 void instruction_D8(cpu_t *cpu, mmu_t *mmu) { ret(CC_C, cpu, mmu); }
 void instruction_D9(cpu_t *cpu, mmu_t *mmu) { reti(cpu, mmu); }
 void instruction_DA(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_C, cpu, mmu); }
 void instruction_DC(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_C, cpu, mmu); }
+void instruction_DF(cpu_t *cpu, mmu_t *mmu) { rst(0x18, cpu, mmu); }
 
 // 0xEX
+void instruction_E7(cpu_t *cpu, mmu_t *mmu) { rst(0x20, cpu, mmu); }
 void instruction_E9(cpu_t *cpu, mmu_t *mmu) { jp_hl(cpu); }
 void instruction_EA(cpu_t *cpu, mmu_t *mmu) { ld_addr16_a(cpu, mmu); }
+void instruction_EF(cpu_t *cpu, mmu_t *mmu) { rst(0x28, cpu, mmu); }
 
 // 0xFX
+void instruction_F7(cpu_t *cpu, mmu_t *mmu) { rst(0x30, cpu, mmu); }
 void instruction_F8(cpu_t *cpu, mmu_t *mmu) { ld_hl_sp_plus_imm8(cpu, mmu); }
 void instruction_F9(cpu_t *cpu, mmu_t *mmu) { ld_sp_hl(cpu, mmu); }
 void instruction_FA(cpu_t *cpu, mmu_t *mmu) { ld_a_addr16(cpu, mmu); }
+void instruction_FF(cpu_t *cpu, mmu_t *mmu) { rst(0x38, cpu, mmu); }
 
 opfunc_t optable[0x100] = {
     // 0x0X
@@ -288,29 +296,37 @@ opfunc_t optable[0x100] = {
     [0xC2] = instruction_C2,
     [0xC3] = instruction_C3,
     [0xC4] = instruction_C4,
+    [0xC7] = instruction_C7,
     [0xC8] = instruction_C8,
     [0xC9] = instruction_C9,
     [0xCA] = instruction_CA,
     [0xCC] = instruction_CC,
     [0xCD] = instruction_CD,
+    [0xCF] = instruction_CF,
 
     // 0xDX
     [0xD0] = instruction_D0,
     [0xD2] = instruction_D2,
     [0xD4] = instruction_D4,
+    [0xD7] = instruction_D7,
     [0xD8] = instruction_D8,
     [0xD9] = instruction_D9,
     [0xDA] = instruction_DA,
     [0xDC] = instruction_DC,
+    [0xDF] = instruction_DF,
 
     // 0xEX
+    [0xE7] = instruction_E7,
     [0xE9] = instruction_E9,
     [0xEA] = instruction_EA,
+    [0xEF] = instruction_EF,
 
     // 0xFX
+    [0xF7] = instruction_F7,
     [0xF8] = instruction_F8,
     [0xF9] = instruction_F9,
     [0xFA] = instruction_FA,
+    [0xFF] = instruction_FF,
 };
 
 char *inst_to_string[0x100] = {
@@ -538,7 +554,7 @@ char *inst_to_string[0x100] = {
     [0xC4] = "CALL NZ, a16",
     [0xC5] = "",
     [0xC6] = "",
-    [0xC7] = "",
+    [0xC7] = "RST 0x00",
     [0xC8] = "RET Z",
     [0xC9] = "RET",
     [0xCA] = "JP Z, a16",
@@ -546,7 +562,7 @@ char *inst_to_string[0x100] = {
     [0xCC] = "CALL Z, a16",
     [0xCD] = "CALL a16",
     [0xCE] = "",
-    [0xCF] = "",
+    [0xCF] = "RST 0x08",
 
     // 0xDX
     [0xD0] = "RET NC",
@@ -555,13 +571,13 @@ char *inst_to_string[0x100] = {
     [0xD4] = "CALL NC, a16",
     [0xD5] = "",
     [0xD6] = "",
-    [0xD7] = "",
+    [0xD7] = "RST 0x10",
     [0xD8] = "RET C",
     [0xD9] = "RETI",
     [0xDA] = "JP C, a16",
     [0xDC] = "CALL C, a16",
     [0xDE] = "",
-    [0xDF] = "",
+    [0xDF] = "RST 0x18",
 
     // 0xEX
     [0xE0] = "",
@@ -569,12 +585,12 @@ char *inst_to_string[0x100] = {
     [0xE2] = "",
     [0xE5] = "",
     [0xE6] = "",
-    [0xE7] = "",
+    [0xE7] = "RST 0x20",
     [0xE8] = "",
     [0xE9] = "JP HL",
     [0xEA] = "LD [a16], A",
     [0xEE] = "",
-    [0xEF] = "",
+    [0xEF] = "RST 0x28",
 
     // 0xFX
     [0xF0] = "",
@@ -583,13 +599,13 @@ char *inst_to_string[0x100] = {
     [0xF3] = "",
     [0xF5] = "",
     [0xF6] = "",
-    [0xF7] = "",
+    [0xF7] = "RST 0x30",
     [0xF8] = "LD HL, SP + e8",
     [0xF9] = "LD SP, HL",
     [0xFA] = "LD A, [a16]",
     [0xFB] = "",
     [0xFE] = "",
-    [0xFF] = "",
+    [0xFF] = "RST 0x38",
 };
 
 char *get_instruction_string(uint8_t opcode) { return inst_to_string[opcode]; }

@@ -87,6 +87,17 @@ void reti(cpu_t *cpu, mmu_t *mmu) {
   ret(CC_NONE, cpu, mmu);
 }
 
+void rst(uint8_t addr, cpu_t *cpu, mmu_t *mmu) {
+  cpu->regs.sp--;
+  // m-cycle
+  mmu_write(cpu->regs.sp, (cpu->regs.pc >> 8) & 0xFF, mmu);
+  cpu->regs.sp--;
+  // m-cycle
+  mmu_write(cpu->regs.sp, cpu->regs.pc & 0xFF, mmu);
+  // m-cycle
+  cpu->regs.pc = addr;
+}
+
 void ld_r16_imm16(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint16_t data = get_imm16_from_pc(cpu, mmu);
   register_set(rt, data, cpu);
