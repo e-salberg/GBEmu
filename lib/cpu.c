@@ -16,7 +16,7 @@ cpu_t *cpu_init() {
 
 bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
   uint16_t start_pc = cpu->regs.pc;
-  uint8_t opcode = mmu_read(mmu, cpu->regs.pc++);
+  uint8_t opcode = mmu_read(cpu->regs.pc++, mmu);
   // printf("opcode %X\n", opcode);
   opfunc_t instruction = get_instruction(opcode);
 
@@ -29,8 +29,8 @@ bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
 
   printf("%04X: %s (%02X %02X %02X) A: %02X F: %s BC: %02X%02X DE: %02X%02X "
          "HL: %02X%02X\n",
-         start_pc, inst_str, opcode, mmu_read(mmu, cpu->regs.pc),
-         mmu_read(mmu, cpu->regs.pc + 1), cpu->regs.a, flags, cpu->regs.b,
+         start_pc, inst_str, opcode, mmu_read(cpu->regs.pc, mmu),
+         mmu_read(cpu->regs.pc + 1, mmu), cpu->regs.a, flags, cpu->regs.b,
          cpu->regs.c, cpu->regs.d, cpu->regs.e, cpu->regs.h, cpu->regs.l);
 
   // execute instruction

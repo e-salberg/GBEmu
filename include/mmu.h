@@ -18,10 +18,10 @@ typedef struct {
 } mmu_t;
 
 mmu_t *mmu_init();
-void mmu_load_rom(mmu_t *mmu, cartridge_t *cartridge);
+void mmu_load_rom(cartridge_t *cartridge, mmu_t *mmu);
 
-uint8_t mmu_read(mmu_t *mmu, uint16_t address);
-void mmu_write(mmu_t *mmu, uint16_t address, uint8_t value);
+uint8_t mmu_read(uint16_t address, mmu_t *mmu);
+void mmu_write(uint16_t address, uint8_t value, mmu_t *mmu);
 
-uint16_t mmu_read16(mmu_t *mmu, uint16_t address);
-void mmu_write16(mmu_t *mmu, uint16_t address, uint16_t value);
+uint16_t mmu_read16(uint16_t address, mmu_t *mmu);
+void mmu_write16(uint16_t address, uint16_t value, mmu_t *mmu);

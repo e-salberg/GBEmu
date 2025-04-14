@@ -24,9 +24,9 @@ mmu_t *mmu_init() {
   return mmu;
 }
 
-void mmu_load_rom(mmu_t *mmu, cartridge_t *cartridge) { mmu->cart = cartridge; }
+void mmu_load_rom(cartridge_t *cartridge, mmu_t *mmu) { mmu->cart = cartridge; }
 
-uint8_t mmu_read(mmu_t *mmu, uint16_t address) {
+uint8_t mmu_read(uint16_t address, mmu_t *mmu) {
   if (address < 0x4000) {
     // return mmu->rom_bank[0][address];
     return mmu->cart->rom_data[address];
@@ -60,7 +60,7 @@ uint8_t mmu_read(mmu_t *mmu, uint16_t address) {
   return 0;
 }
 
-void mmu_write(mmu_t *mmu, uint16_t address, uint8_t value) {
+void mmu_write(uint16_t address, uint8_t value, mmu_t *mmu) {
   if (address < 0x4000) {
     // mmu->rom_bank[0][address] = value;
     mmu->cart->rom_data[address] = value;
@@ -91,13 +91,13 @@ void mmu_write(mmu_t *mmu, uint16_t address, uint8_t value) {
   }
 }
 
-uint16_t mmu_read16(mmu_t *mmu, uint16_t address) {
-  uint16_t lo = mmu_read(mmu, address);
-  uint16_t hi = mmu_read(mmu, address + 1);
+uint16_t mmu_read16(uint16_t address, mmu_t *mmu) {
+  uint16_t lo = mmu_read(address, mmu);
+  uint16_t hi = mmu_read(address + 1, mmu);
   return (hi << 8) | lo;
 }
 
-void mmu_write16(mmu_t *mmu, uint16_t address, uint16_t value) {
-  mmu_write(mmu, address + 1, (value & 0xFF00) >> 8);
-  mmu_write(mmu, address, value & 0xFF);
+void mmu_write16(uint16_t address, uint16_t value, mmu_t *mmu) {
+  mmu_write(address + 1, (value & 0xFF00) >> 8, mmu);
+  mmu_write(address, value & 0xFF, mmu);
 }

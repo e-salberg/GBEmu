@@ -108,7 +108,7 @@ uint8_t register_read8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   case RT_L:
     return cpu->regs.l;
   case RT_HL:
-    return mmu_read(mmu, register_read(RT_HL, cpu));
+    return mmu_read(register_read(RT_HL, cpu), mmu);
   case RT_A:
     return cpu->regs.a;
   default:
@@ -138,7 +138,7 @@ void register_set8(reg_type rt, uint8_t val, cpu_t *cpu, mmu_t *mmu) {
     cpu->regs.l = val;
     break;
   case RT_HL:
-    mmu_write(mmu, register_read(RT_HL, cpu), val);
+    mmu_write(register_read(RT_HL, cpu), val, mmu);
     break;
   case RT_A:
     cpu->regs.a = val;

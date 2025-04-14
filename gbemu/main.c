@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
   }
 
   mmu_t *mmu = mmu_init();
-  mmu_load_rom(mmu, cartridge);
+  mmu_load_rom(cartridge, mmu);
 
   cpu_t *cpu = cpu_init();
 
