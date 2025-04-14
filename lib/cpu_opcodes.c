@@ -23,6 +23,7 @@ void instruction_13(cpu_t *cpu, mmu_t *mmu) { inc_r16(RT_DE, cpu); }
 void instruction_14(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_D, cpu, mmu); }
 void instruction_15(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_D, cpu, mmu); }
 void instruction_16(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_D, cpu, mmu); }
+void instruction_18(cpu_t *cpu, mmu_t *mmu) { jr_e8(CC_NONE, cpu, mmu); }
 void instruction_1A(cpu_t *cpu, mmu_t *mmu) { ld_a_r16mem(RT_DE, cpu, mmu); }
 void instruction_1B(cpu_t *cpu, mmu_t *mmu) { dec_r16(RT_DE, cpu); }
 void instruction_1C(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_E, cpu, mmu); }
@@ -30,12 +31,14 @@ void instruction_1D(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_E, cpu, mmu); }
 void instruction_1E(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_E, cpu, mmu); }
 
 // 0x2X
+void instruction_20(cpu_t *cpu, mmu_t *mmu) { jr_e8(CC_NZ, cpu, mmu); }
 void instruction_21(cpu_t *cpu, mmu_t *mmu) { ld_r16_imm16(RT_HL, cpu, mmu); }
 void instruction_22(cpu_t *cpu, mmu_t *mmu) { ld_r16mem_a(RT_HLI, cpu, mmu); }
 void instruction_23(cpu_t *cpu, mmu_t *mmu) { inc_r16(RT_HL, cpu); }
 void instruction_24(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_H, cpu, mmu); }
 void instruction_25(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_H, cpu, mmu); }
 void instruction_26(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_H, cpu, mmu); }
+void instruction_28(cpu_t *cpu, mmu_t *mmu) { jr_e8(CC_Z, cpu, mmu); }
 void instruction_2A(cpu_t *cpu, mmu_t *mmu) { ld_a_r16mem(RT_HLI, cpu, mmu); }
 void instruction_2B(cpu_t *cpu, mmu_t *mmu) { dec_r16(RT_HL, cpu); }
 void instruction_2C(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_L, cpu, mmu); }
@@ -43,12 +46,14 @@ void instruction_2D(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_L, cpu, mmu); }
 void instruction_2E(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_L, cpu, mmu); }
 
 // 0x3X
+void instruction_30(cpu_t *cpu, mmu_t *mmu) { jr_e8(CC_NC, cpu, mmu); }
 void instruction_31(cpu_t *cpu, mmu_t *mmu) { ld_r16_imm16(RT_SP, cpu, mmu); }
 void instruction_32(cpu_t *cpu, mmu_t *mmu) { ld_r16mem_a(RT_HLD, cpu, mmu); }
 void instruction_33(cpu_t *cpu, mmu_t *mmu) { inc_r16(RT_SP, cpu); }
 void instruction_34(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_HL, cpu, mmu); }
 void instruction_35(cpu_t *cpu, mmu_t *mmu) { dec_r8(RT_HL, cpu, mmu); }
 void instruction_36(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_HL, cpu, mmu); }
+void instruction_38(cpu_t *cpu, mmu_t *mmu) { jr_e8(CC_C, cpu, mmu); }
 void instruction_3A(cpu_t *cpu, mmu_t *mmu) { ld_a_r16mem(RT_HLD, cpu, mmu); }
 void instruction_3B(cpu_t *cpu, mmu_t *mmu) { dec_r16(RT_SP, cpu); }
 void instruction_3C(cpu_t *cpu, mmu_t *mmu) { inc_r8(RT_A, cpu, mmu); }
@@ -195,6 +200,7 @@ opfunc_t optable[0x100] = {
     [0x14] = instruction_14,
     [0x15] = instruction_15,
     [0x16] = instruction_16,
+    [0x18] = instruction_18,
     [0x1A] = instruction_1A,
     [0x1B] = instruction_1B,
     [0x1C] = instruction_1C,
@@ -202,12 +208,14 @@ opfunc_t optable[0x100] = {
     [0x1E] = instruction_1E,
 
     // 0x2X
+    [0x20] = instruction_20,
     [0x21] = instruction_21,
     [0x22] = instruction_22,
     [0x23] = instruction_23,
     [0x24] = instruction_24,
     [0x25] = instruction_25,
     [0x26] = instruction_26,
+    [0x28] = instruction_28,
     [0x2A] = instruction_2A,
     [0x2B] = instruction_2B,
     [0x2C] = instruction_2C,
@@ -215,12 +223,14 @@ opfunc_t optable[0x100] = {
     [0x2E] = instruction_2E,
 
     // 0x3X
+    [0x30] = instruction_30,
     [0x31] = instruction_31,
     [0x32] = instruction_32,
     [0x33] = instruction_33,
     [0x34] = instruction_34,
     [0x35] = instruction_35,
     [0x36] = instruction_36,
+    [0x38] = instruction_38,
     [0x3A] = instruction_3A,
     [0x3B] = instruction_3B,
     [0x3C] = instruction_3C,
@@ -373,7 +383,7 @@ char *inst_to_string[0x100] = {
     [0x15] = "DEC D",
     [0x16] = "LD D, n8",
     [0x17] = "",
-    [0x18] = "",
+    [0x18] = "JR e8",
     [0x19] = "",
     [0x1A] = "LD A, [DE]",
     [0x1B] = "DEC DE",
@@ -383,7 +393,7 @@ char *inst_to_string[0x100] = {
     [0x1F] = "",
 
     // 0x2X
-    [0x20] = "",
+    [0x20] = "JR NZ, e8",
     [0x21] = "LD HL, n16",
     [0x22] = "LD [HL+], A",
     [0x23] = "INC HL",
@@ -391,7 +401,7 @@ char *inst_to_string[0x100] = {
     [0x25] = "DEC H",
     [0x26] = "LD H, n8",
     [0x27] = "",
-    [0x28] = "",
+    [0x28] = "JR Z, e8",
     [0x29] = "",
     [0x2A] = "LD A, [HLI]",
     [0x2B] = "DEC HL",
@@ -401,7 +411,7 @@ char *inst_to_string[0x100] = {
     [0x2F] = "",
 
     // 0x3X
-    [0x30] = "",
+    [0x30] = "JR NC, e8",
     [0x31] = "LD SP, n16",
     [0x32] = "LD [HL-], A",
     [0x33] = "INC SP",
@@ -409,7 +419,7 @@ char *inst_to_string[0x100] = {
     [0x35] = "DEC [HL]",
     [0x36] = "LD [HL], n8",
     [0x37] = "",
-    [0x38] = "",
+    [0x38] = "JR C, e8",
     [0x39] = "",
     [0x3A] = "LD A, [HLD]",
     [0x3B] = "DEC SP",

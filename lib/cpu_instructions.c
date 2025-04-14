@@ -52,6 +52,15 @@ void jp_addr16(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
 
 void jp_hl(cpu_t *cpu) { cpu->regs.pc = register_read(RT_HL, cpu); }
 
+void jr_e8(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
+  int8_t e = (int8_t)mmu_read(cpu->regs.pc++, mmu);
+  // m-cycle
+  if (check_condition(cond, cpu)) {
+    cpu->regs.pc += e;
+    // m-cycle
+  }
+}
+
 void call_imm16(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
   uint16_t addr = get_imm16_from_pc(cpu, mmu);
 

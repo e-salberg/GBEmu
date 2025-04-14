@@ -13,6 +13,7 @@ opfunc_t get_instruction(uint8_t opcode);
 // CPU Instruction functions
 void jp_addr16(condition_code cond, cpu_t *cpu, mmu_t *mmu);
 void jp_hl(cpu_t *cpu);
+void jr_e8(condition_code cond, cpu_t *cpu, mmu_t *mmu);
 void call_imm16(condition_code cond, cpu_t *cpu, mmu_t *mmu);
 void ret(condition_code cond, cpu_t *cpu, mmu_t *mmu);
 void reti(cpu_t *cpu, mmu_t *mmu);
