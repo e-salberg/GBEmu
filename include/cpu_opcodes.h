@@ -44,3 +44,5 @@ void add_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 void add_hl_r16(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 void add_sp_e8(cpu_t *cpu, mmu_t *mmu);
 void adc_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
+void sub_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
+void sbc_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);

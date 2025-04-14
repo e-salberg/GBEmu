@@ -154,6 +154,24 @@ void instruction_8D(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_L, cpu, mmu); }
 void instruction_8E(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_HL, cpu, mmu); }
 void instruction_8F(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_A, cpu, mmu); }
 
+// 0x9X
+void instruction_90(cpu_t *cpu, mmu_t *mmu) { sub_a_r8(RT_B, cpu, mmu); }
+void instruction_91(cpu_t *cpu, mmu_t *mmu) { sub_a_r8(RT_C, cpu, mmu); }
+void instruction_92(cpu_t *cpu, mmu_t *mmu) { sub_a_r8(RT_D, cpu, mmu); }
+void instruction_93(cpu_t *cpu, mmu_t *mmu) { sub_a_r8(RT_E, cpu, mmu); }
+void instruction_94(cpu_t *cpu, mmu_t *mmu) { sub_a_r8(RT_H, cpu, mmu); }
+void instruction_95(cpu_t *cpu, mmu_t *mmu) { sub_a_r8(RT_L, cpu, mmu); }
+void instruction_96(cpu_t *cpu, mmu_t *mmu) { sub_a_r8(RT_HL, cpu, mmu); }
+void instruction_97(cpu_t *cpu, mmu_t *mmu) { sub_a_r8(RT_A, cpu, mmu); }
+void instruction_98(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_B, cpu, mmu); }
+void instruction_99(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_C, cpu, mmu); }
+void instruction_9A(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_D, cpu, mmu); }
+void instruction_9B(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_E, cpu, mmu); }
+void instruction_9C(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_H, cpu, mmu); }
+void instruction_9D(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_L, cpu, mmu); }
+void instruction_9E(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_HL, cpu, mmu); }
+void instruction_9F(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_A, cpu, mmu); }
+
 // 0xCX
 void instruction_C0(cpu_t *cpu, mmu_t *mmu) { ret(CC_NZ, cpu, mmu); }
 void instruction_C1(cpu_t *cpu, mmu_t *mmu) { pop_r16stk(RT_BC, cpu, mmu); }
@@ -177,11 +195,13 @@ void instruction_D1(cpu_t *cpu, mmu_t *mmu) { pop_r16stk(RT_DE, cpu, mmu); }
 void instruction_D2(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_NC, cpu, mmu); }
 void instruction_D4(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NC, cpu, mmu); }
 void instruction_D5(cpu_t *cpu, mmu_t *mmu) { push_r16stk(RT_DE, cpu, mmu); }
+void instruction_D6(cpu_t *cpu, mmu_t *mmu) { sub_a_r8(RT_NONE, cpu, mmu); }
 void instruction_D7(cpu_t *cpu, mmu_t *mmu) { rst(0x10, cpu, mmu); }
 void instruction_D8(cpu_t *cpu, mmu_t *mmu) { ret(CC_C, cpu, mmu); }
 void instruction_D9(cpu_t *cpu, mmu_t *mmu) { reti(cpu, mmu); }
 void instruction_DA(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_C, cpu, mmu); }
 void instruction_DC(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_C, cpu, mmu); }
+void instruction_DE(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_NONE, cpu, mmu); }
 void instruction_DF(cpu_t *cpu, mmu_t *mmu) { rst(0x18, cpu, mmu); }
 
 // 0xEX
@@ -352,6 +372,24 @@ opfunc_t optable[0x100] = {
     [0x86] = instruction_86,
     [0x87] = instruction_87,
 
+    // 0x9X
+    [0x90] = instruction_90,
+    [0x91] = instruction_91,
+    [0x92] = instruction_92,
+    [0x93] = instruction_93,
+    [0x94] = instruction_94,
+    [0x95] = instruction_95,
+    [0x96] = instruction_96,
+    [0x97] = instruction_97,
+    [0x98] = instruction_98,
+    [0x99] = instruction_99,
+    [0x9A] = instruction_9A,
+    [0x9B] = instruction_9B,
+    [0x9C] = instruction_9C,
+    [0x9D] = instruction_9D,
+    [0x9E] = instruction_9E,
+    [0x9F] = instruction_9F,
+
     // 0xCX
     [0xC0] = instruction_C0,
     [0xC1] = instruction_C1,
@@ -374,11 +412,13 @@ opfunc_t optable[0x100] = {
     [0xD2] = instruction_D2,
     [0xD4] = instruction_D4,
     [0xD5] = instruction_D5,
+    [0xD6] = instruction_D6,
     [0xD7] = instruction_D7,
     [0xD8] = instruction_D8,
     [0xD9] = instruction_D9,
     [0xDA] = instruction_DA,
     [0xDC] = instruction_DC,
+    [0xDE] = instruction_DE,
     [0xDF] = instruction_DF,
 
     // 0xEX
@@ -568,22 +608,22 @@ char *inst_to_string[0x100] = {
     [0x8F] = "",
 
     // 0x9X
-    [0x90] = "",
-    [0x91] = "",
-    [0x92] = "",
-    [0x93] = "",
-    [0x94] = "",
-    [0x95] = "",
-    [0x96] = "",
-    [0x97] = "",
-    [0x98] = "",
-    [0x99] = "",
-    [0x9A] = "",
-    [0x9B] = "",
-    [0x9C] = "",
-    [0x9D] = "",
-    [0x9E] = "",
-    [0x9F] = "",
+    [0x90] = "SUB A, B",
+    [0x91] = "SUB A, C",
+    [0x92] = "SUB A, D",
+    [0x93] = "SUB A, E",
+    [0x94] = "SUB A, H",
+    [0x95] = "SUB A, L",
+    [0x96] = "SUB A, [HL]",
+    [0x97] = "SUB A, A",
+    [0x98] = "SBC A, B",
+    [0x99] = "SBC A, C",
+    [0x9A] = "SBC A, D",
+    [0x9B] = "SBC A, E",
+    [0x9C] = "SBC A, H",
+    [0x9D] = "SBC A, L",
+    [0x9E] = "SBC A, [HL]",
+    [0x9F] = "SBC A, A",
 
     // 0xAX
     [0xA0] = "",
@@ -645,13 +685,13 @@ char *inst_to_string[0x100] = {
     [0xD2] = "JP NC, a16",
     [0xD4] = "CALL NC, a16",
     [0xD5] = "PUSH DE",
-    [0xD6] = "",
+    [0xD6] = "SUB A, n8",
     [0xD7] = "RST 0x10",
     [0xD8] = "RET C",
     [0xD9] = "RETI",
     [0xDA] = "JP C, a16",
     [0xDC] = "CALL C, a16",
-    [0xDE] = "",
+    [0xDE] = "SBC A, A",
     [0xDF] = "RST 0x18",
 
     // 0xEX

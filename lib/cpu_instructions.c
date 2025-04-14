@@ -284,9 +284,9 @@ void add_sp_e8(cpu_t *cpu, mmu_t *mmu) {
   // m-cycle
   uint16_t result = cpu->regs.sp + e;
   // m-cycle
-  cpu->regs.sp = result;
   int c = (cpu->regs.sp + e) > 0xFFFF;
   int h = (cpu->regs.sp & 0xFF) + (e & 0xFF) > 0xFF;
+  cpu->regs.sp = result;
   set_flags(0, 0, h, c, cpu);
   // m-cycle
 }
@@ -303,12 +303,10 @@ void add_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
     // m-cycle
   }
   uint8_t result = cpu->regs.a + data;
-  cpu->regs.a = result;
-
-  int z = result == 0;
   int c = (cpu->regs.a + data) > 0xFF;
   int h = (cpu->regs.a & 0xF) + (data & 0xF) > 0xF;
-  set_flags(z, 0, h, c, cpu);
+  cpu->regs.a = result;
+  set_flags(result == 0, 0, h, c, cpu);
 }
 
 void adc_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
@@ -323,9 +321,45 @@ void adc_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   }
   int c = CHECK_BIT(cpu->regs.f, 4);
   uint8_t result = cpu->regs.a + data + c;
-  cpu->regs.a = result;
-
   int h = (cpu->regs.a & 0xF) + (data & 0xF) + (c & 0xF) > 0xF;
   c = (cpu->regs.a + data + c) > 0xFF;
+  cpu->regs.a = result;
   set_flags(result == 0, 0, h, c, cpu);
+}
+
+void sub_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
+  uint8_t data;
+  if (rt == RT_NONE) {
+    data = mmu_read(cpu->regs.pc++, mmu);
+  } else {
+    data = register_read8(rt, cpu, mmu);
+  }
+  if (rt == RT_HL || rt == RT_NONE) {
+    // m-cycle
+  }
+
+  uint8_t result = cpu->regs.a - data;
+  int c = data > cpu->regs.a;
+  int h = (data & 0xF) > (cpu->regs.a & 0xF);
+  cpu->regs.a = result;
+  set_flags(result == 0, 1, h, c, cpu);
+}
+
+void sbc_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
+  uint8_t data;
+  if (rt == RT_NONE) {
+    data = mmu_read(cpu->regs.pc++, mmu);
+  } else {
+    data = register_read8(rt, cpu, mmu);
+  }
+  if (rt == RT_HL || rt == RT_NONE) {
+    // m-cycle
+  }
+
+  int c = CHECK_BIT(cpu->regs.f, 4);
+  uint8_t result = cpu->regs.a - data - c;
+  int h = (data & 0xF) + (c & 0xf) > (cpu->regs.a & 0xF);
+  c = (data + c) > cpu->regs.a;
+  cpu->regs.a = result;
+  set_flags(result == 0, 1, h, c, cpu);
 }
