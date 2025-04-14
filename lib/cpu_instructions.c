@@ -189,6 +189,26 @@ void ld_sp_hl(cpu_t *cpu, mmu_t *mmu) {
   // m-cycle
 }
 
+void push_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
+  uint16_t data = register_read(rt, cpu);
+  cpu->regs.sp--;
+  // m-cycle
+  mmu_write(cpu->regs.sp, (data >> 8) & 0xFF, mmu);
+  cpu->regs.sp--;
+  // m-cycle
+  mmu_write(cpu->regs.sp, data & 0xFF, mmu);
+  // m-cycle
+}
+
+void pop_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
+  uint8_t lo = mmu_read(cpu->regs.sp++, mmu);
+  // m-cycle
+  uint8_t hi = mmu_read(cpu->regs.sp++, mmu);
+  // m-cycle
+  register_set(rt, (hi << 8) | lo, cpu);
+  // TODO - how does this work with POP AF?
+}
+
 void inc_r16(reg_type rt, cpu_t *cpu) {
   uint16_t data = register_read(rt, cpu) + 1;
   register_set(rt, data, cpu);
