@@ -17,9 +17,8 @@ cpu_t *cpu_init() {
 bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
   uint16_t start_pc = cpu->regs.pc;
   uint8_t opcode = mmu_read(mmu, cpu->regs.pc++);
-  printf("opcode %X\n", opcode);
+  // printf("opcode %X\n", opcode);
   opfunc_t instruction = get_instruction(opcode);
-  instruction(cpu, mmu);
 
   char flags[16];
   sprintf(flags, "%c%c%c%c", cpu->regs.f & (1 << 7) ? 'Z' : '-',
@@ -28,10 +27,13 @@ bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
           cpu->regs.f & (1 << 4) ? 'C' : '-');
   char *inst_str = get_instruction_string(opcode);
 
-  printf("%04X: %s (%02X) A: %02X F: %s BC: %02X%02X DE: %02X%02X "
+  printf("%04X: %s (%02X %02X %02X) A: %02X F: %s BC: %02X%02X DE: %02X%02X "
          "HL: %02X%02X\n",
-         start_pc, inst_str, opcode, cpu->regs.a, flags, cpu->regs.b,
+         start_pc, inst_str, opcode, mmu_read(mmu, cpu->regs.pc),
+         mmu_read(mmu, cpu->regs.pc + 1), cpu->regs.a, flags, cpu->regs.b,
          cpu->regs.c, cpu->regs.d, cpu->regs.e, cpu->regs.h, cpu->regs.l);
 
+  // execute instruction
+  instruction(cpu, mmu);
   return true;
 }

@@ -127,7 +127,28 @@ void instruction_7D(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_A, RT_L, cpu, mmu); }
 void instruction_7E(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_A, RT_HL, cpu, mmu); }
 void instruction_7F(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_A, RT_A, cpu, mmu); }
 
+// 0xCX
+void instruction_C0(cpu_t *cpu, mmu_t *mmu) { ret(CC_NZ, cpu, mmu); }
+void instruction_C2(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_NZ, cpu, mmu); }
+void instruction_C3(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_NONE, cpu, mmu); }
+void instruction_C4(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NZ, cpu, mmu); }
+void instruction_C8(cpu_t *cpu, mmu_t *mmu) { ret(CC_Z, cpu, mmu); }
+void instruction_C9(cpu_t *cpu, mmu_t *mmu) { ret(CC_NONE, cpu, mmu); }
+void instruction_CA(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_Z, cpu, mmu); }
+void instruction_CC(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_Z, cpu, mmu); }
+void instruction_CD(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NONE, cpu, mmu); }
+
+// 0xDX
+void instruction_D0(cpu_t *cpu, mmu_t *mmu) { ret(CC_NC, cpu, mmu); }
+void instruction_D2(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_NC, cpu, mmu); }
+void instruction_D4(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NC, cpu, mmu); }
+void instruction_D8(cpu_t *cpu, mmu_t *mmu) { ret(CC_C, cpu, mmu); }
+void instruction_D9(cpu_t *cpu, mmu_t *mmu) { reti(cpu, mmu); }
+void instruction_DA(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_C, cpu, mmu); }
+void instruction_DC(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_C, cpu, mmu); }
+
 // 0xEX
+void instruction_E9(cpu_t *cpu, mmu_t *mmu) { jp_hl(cpu); }
 void instruction_EA(cpu_t *cpu, mmu_t *mmu) { ld_addr16_a(cpu, mmu); }
 
 // 0xFX
@@ -262,7 +283,28 @@ opfunc_t optable[0x100] = {
     [0x7E] = instruction_7E,
     [0x7F] = instruction_7F,
 
+    // 0xCX
+    [0xC0] = instruction_C0,
+    [0xC2] = instruction_C2,
+    [0xC3] = instruction_C3,
+    [0xC4] = instruction_C4,
+    [0xC8] = instruction_C8,
+    [0xC9] = instruction_C9,
+    [0xCA] = instruction_CA,
+    [0xCC] = instruction_CC,
+    [0xCD] = instruction_CD,
+
+    // 0xDX
+    [0xD0] = instruction_D0,
+    [0xD2] = instruction_D2,
+    [0xD4] = instruction_D4,
+    [0xD8] = instruction_D8,
+    [0xD9] = instruction_D9,
+    [0xDA] = instruction_DA,
+    [0xDC] = instruction_DC,
+
     // 0xEX
+    [0xE9] = instruction_E9,
     [0xEA] = instruction_EA,
 
     // 0xFX
@@ -489,35 +531,35 @@ char *inst_to_string[0x100] = {
     [0xBF] = "",
 
     // 0xCX
-    [0xC0] = "",
+    [0xC0] = "RET NZ",
     [0xC1] = "",
-    [0xC2] = "",
-    [0xC3] = "",
-    [0xC4] = "",
+    [0xC2] = "JP NZ, a16",
+    [0xC3] = "JP a16",
+    [0xC4] = "CALL NZ, a16",
     [0xC5] = "",
     [0xC6] = "",
     [0xC7] = "",
-    [0xC8] = "",
-    [0xC9] = "",
-    [0xCA] = "",
+    [0xC8] = "RET Z",
+    [0xC9] = "RET",
+    [0xCA] = "JP Z, a16",
     [0xCB] = "",
-    [0xCC] = "",
-    [0xCD] = "",
+    [0xCC] = "CALL Z, a16",
+    [0xCD] = "CALL a16",
     [0xCE] = "",
     [0xCF] = "",
 
     // 0xDX
-    [0xD0] = "",
+    [0xD0] = "RET NC",
     [0xD1] = "",
-    [0xD2] = "",
-    [0xD4] = "",
+    [0xD2] = "JP NC, a16",
+    [0xD4] = "CALL NC, a16",
     [0xD5] = "",
     [0xD6] = "",
     [0xD7] = "",
-    [0xD8] = "",
-    [0xD9] = "",
-    [0xDA] = "",
-    [0xDC] = "",
+    [0xD8] = "RET C",
+    [0xD9] = "RETI",
+    [0xDA] = "JP C, a16",
+    [0xDC] = "CALL C, a16",
     [0xDE] = "",
     [0xDF] = "",
 
@@ -529,7 +571,7 @@ char *inst_to_string[0x100] = {
     [0xE6] = "",
     [0xE7] = "",
     [0xE8] = "",
-    [0xE9] = "",
+    [0xE9] = "JP HL",
     [0xEA] = "LD [a16], A",
     [0xEE] = "",
     [0xEF] = "",

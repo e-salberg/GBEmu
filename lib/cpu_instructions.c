@@ -1,4 +1,5 @@
 #include <cpu.h>
+#include <cpu_opcodes.h>
 
 static void set_flags(cpu_t *cpu, int8_t z, int8_t n, int8_t h, int8_t c) {
   if (z != -1) {
@@ -13,6 +14,78 @@ static void set_flags(cpu_t *cpu, int8_t z, int8_t n, int8_t h, int8_t c) {
   if (c != -1) {
     SET_BIT(cpu->regs.f, 4, z);
   }
+}
+
+static bool check_condition(condition_code cond, cpu_t *cpu) {
+  bool z = CHECK_BIT(cpu->regs.f, 7);
+  bool c = CHECK_BIT(cpu->regs.f, 4);
+
+  switch (cond) {
+  case CC_NONE:
+    return true;
+  case CC_Z:
+    return z;
+  case CC_NZ:
+    return !z;
+  case CC_C:
+    return c;
+  case CC_NC:
+    return !c;
+  }
+}
+
+void jp_addr16(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
+  uint8_t lo = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint8_t hi = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint16_t addr = (hi << 8) | lo;
+
+  if (check_condition(cond, cpu)) {
+    cpu->regs.pc = addr;
+    // m-cycle
+  }
+}
+
+void jp_hl(cpu_t *cpu) { cpu->regs.pc = register_read(RT_HL, cpu); }
+
+void call_imm16(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
+  uint8_t lo = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint8_t hi = mmu_read(mmu, cpu->regs.pc++);
+  // m-cycle
+  uint16_t addr = (hi << 8) | lo;
+
+  if (check_condition(cond, cpu)) {
+    cpu->regs.sp--;
+    // m-cycle
+    mmu_write(mmu, cpu->regs.sp, (cpu->regs.pc >> 8) & 0xFF);
+    cpu->regs.sp--;
+    // m-cycle
+    mmu_write(mmu, cpu->regs.sp, cpu->regs.pc & 0xFF);
+    // m-cycle
+    cpu->regs.pc = addr;
+  }
+}
+
+void ret(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
+  if (cond != CC_NONE) {
+    // m-cycle
+  }
+
+  if (check_condition(cond, cpu)) {
+    uint8_t lo = mmu_read(mmu, cpu->regs.sp++);
+    // m-cycle
+    uint8_t hi = mmu_read(mmu, cpu->regs.sp++);
+    // m-cycle
+    cpu->regs.pc = (hi << 8) | lo;
+    // m-cycle
+  }
+}
+
+void reti(cpu_t *cpu, mmu_t *mmu) {
+  cpu->ime = true;
+  ret(CC_NONE, cpu, mmu);
 }
 
 void ld_r16_imm16(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
