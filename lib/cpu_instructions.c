@@ -1,7 +1,7 @@
 #include <cpu.h>
 #include <cpu_opcodes.h>
 
-static void set_flags(cpu_t *cpu, int8_t z, int8_t n, int8_t h, int8_t c) {
+static void set_flags(int8_t z, int8_t n, int8_t h, int8_t c, cpu_t *cpu) {
   if (z != -1) {
     SET_BIT(cpu->regs.f, 7, z);
   }
@@ -250,7 +250,7 @@ void inc_r16(reg_type rt, cpu_t *cpu) {
 void inc_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint8_t data = register_read8(rt, cpu, mmu) + 1;
   register_set8(rt, data, cpu, mmu);
-  set_flags(cpu, data == 0, 0, (data & 0xF) == 0, -1);
+  set_flags(data == 0, 0, (data & 0xF) == 0, -1, cpu);
 }
 
 void dec_r16(reg_type rt, cpu_t *cpu) {
@@ -261,5 +261,52 @@ void dec_r16(reg_type rt, cpu_t *cpu) {
 void dec_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint8_t data = register_read8(rt, cpu, mmu) - 1;
   register_set8(rt, data, cpu, mmu);
-  set_flags(cpu, data == 0, 1, (data & 0xF) == 0xF, -1);
+  set_flags(data == 0, 1, (data & 0xF) == 0xF, -1, cpu);
+}
+
+// TODO - order should add L + C, m-cycle, H + B + flags.c?
+void add_hl_r16(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
+  uint16_t hl = register_read(RT_HL, cpu);
+  uint16_t data = register_read(rt, cpu);
+  uint16_t result = hl + data;
+  register_set(RT_HL, result, cpu);
+
+  // m-cycle
+
+  int c = (hl + data) > 0xFFFF;
+  int h = (hl & 0xFF) + (data & 0xFF) > 0xFF;
+  set_flags(-1, 0, h, c, cpu);
+}
+
+// TODO - order should be set lsb(SP) -> m-cycle -> set msb(SP) -> m-cycle?
+void add_sp_e8(cpu_t *cpu, mmu_t *mmu) {
+  int8_t e = (int8_t)mmu_read(cpu->regs.pc++, mmu);
+  // m-cycle
+  uint16_t result = cpu->regs.sp + e;
+  // m-cycle
+  cpu->regs.sp = result;
+  int c = (cpu->regs.sp + e) > 0xFFFF;
+  int h = (cpu->regs.sp & 0xFF) + (e & 0xFF) > 0xFF;
+  set_flags(0, 0, h, c, cpu);
+  // m-cycle
+}
+
+void add_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
+  uint8_t data;
+  if (rt == RT_NONE) {
+    // RT_NONE means add a, imm8
+    data = mmu_read(cpu->regs.pc++, mmu);
+  } else {
+    data = register_read8(rt, cpu, mmu);
+  }
+  if (rt == RT_HL || rt == RT_NONE) {
+    // m-cycle
+  }
+  uint8_t result = cpu->regs.a + data;
+  cpu->regs.a = result;
+
+  int z = result == 0;
+  int c = (cpu->regs.a + data) > 0xFF;
+  int h = (cpu->regs.a & 0xF) + (data & 0xF) > 0xF;
+  set_flags(z, 0, h, c, cpu);
 }
