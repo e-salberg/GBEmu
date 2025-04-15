@@ -64,3 +64,5 @@ void stop();
 void halt(cpu_t *cpu);
 void ei(cpu_t *cpu);
 void di(cpu_t *cpu);
+
+void cb(cpu_t *cpu, mmu_t *mmu);

@@ -229,6 +229,7 @@ void instruction_C7(cpu_t *cpu, mmu_t *mmu) { rst(0x00, cpu, mmu); }
 void instruction_C8(cpu_t *cpu, mmu_t *mmu) { ret(CC_Z, cpu, mmu); }
 void instruction_C9(cpu_t *cpu, mmu_t *mmu) { ret(CC_NONE, cpu, mmu); }
 void instruction_CA(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_Z, cpu, mmu); }
+void instruction_CB(cpu_t *cpu, mmu_t *mmu) { cb(cpu, mmu); }
 void instruction_CC(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_Z, cpu, mmu); }
 void instruction_CE(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_NONE, cpu, mmu); }
 void instruction_CD(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NONE, cpu, mmu); }
@@ -506,6 +507,7 @@ opfunc_t optable[0x100] = {
     [0xC8] = instruction_C8,
     [0xC9] = instruction_C9,
     [0xCA] = instruction_CA,
+    [0xCB] = instruction_CB,
     [0xCC] = instruction_CC,
     [0xCD] = instruction_CD,
     [0xCF] = instruction_CF,
@@ -783,7 +785,7 @@ char *inst_to_string[0x100] = {
     [0xC8] = "RET Z",
     [0xC9] = "RET",
     [0xCA] = "JP Z, a16",
-    [0xCB] = "",
+    [0xCB] = "PERFIX",
     [0xCC] = "CALL Z, a16",
     [0xCD] = "CALL a16",
     [0xCE] = "ADC A, n8",

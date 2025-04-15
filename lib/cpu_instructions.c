@@ -453,3 +453,165 @@ void halt(cpu_t *cpu) { cpu->is_halted = true; }
 void ei(cpu_t *cpu) { cpu->enabling_ime = true; }
 
 void di(cpu_t *cpu) { cpu->ime = false; }
+
+/* ***CB Instructions*** */
+
+static reg_type get_cb_operand(uint8_t operand) {
+  switch (operand) {
+  case 0x0:
+    return RT_B;
+  case 0x1:
+    return RT_C;
+  case 0x2:
+    return RT_D;
+  case 0x3:
+    return RT_E;
+  case 0x4:
+    return RT_H;
+  case 0x5:
+    return RT_L;
+  case 0x6:
+    return RT_HL;
+  case 0x7:
+    return RT_A;
+  default:
+    return RT_NONE;
+  }
+}
+
+void bit(uint8_t bit_index, reg_type rt, uint8_t data, cpu_t *cpu, mmu_t *mmu) {
+  bool is_bit_set = ((1 << bit_index) & data);
+  set_flags(!is_bit_set, 0, 1, -1, cpu);
+}
+void res(uint8_t bit_index, reg_type rt, uint8_t data, cpu_t *cpu, mmu_t *mmu) {
+  data &= ~(1 << bit_index);
+  register_set8(rt, data, cpu, mmu);
+  if (rt == RT_HL) {
+    // m-cycle
+  }
+}
+void set(uint8_t bit_index, reg_type rt, uint8_t data, cpu_t *cpu, mmu_t *mmu) {
+  data |= (1 << bit_index);
+  register_set8(rt, data, cpu, mmu);
+  if (rt == RT_HL) {
+    // m-cycle
+  }
+}
+void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
+               mmu_t *mmu) {
+  switch (opcode) {
+  case 0b000: {
+    // rlc r8
+    bool c = CHECK_BIT(data, 7);
+    uint8_t result = (data << 1) | c;
+    register_set8(rt, result, cpu, mmu);
+    if (rt == RT_HL) {
+      // m-cycle
+    }
+    set_flags(result == 0, 0, 0, c, cpu);
+    break;
+  }
+  case 0b001: {
+    // rrc r8
+    bool c = CHECK_BIT(data, 7);
+    uint8_t result = (data << 1) | c;
+    register_set8(rt, result, cpu, mmu);
+    if (rt == RT_HL) {
+      // m-cycle
+    }
+    set_flags(result == 0, 0, 0, c, cpu);
+    break;
+  }
+  case 0b010: {
+    // rl r8
+    bool c = CHECK_BIT(data, 7);
+    uint8_t result = (data << 1) | CHECK_BIT(cpu->regs.f, 4);
+    register_set8(rt, result, cpu, mmu);
+    if (rt == RT_HL) {
+      // m-cycle
+    }
+    set_flags(result == 0, 0, 0, c, cpu);
+    break;
+  }
+  case 0b011: {
+    // rr r8
+    bool c = CHECK_BIT(data, 7);
+    uint8_t result = (data >> 1) | (CHECK_BIT(cpu->regs.f, 4) << 7);
+    register_set8(rt, result, cpu, mmu);
+    if (rt == RT_HL) {
+      // m-cycle
+    }
+    set_flags(result == 0, 0, 0, c, cpu);
+    break;
+  }
+  case 0b100: {
+    // sla r8
+    bool c = CHECK_BIT(data, 7);
+    uint8_t result = (data << 1);
+    register_set8(rt, result, cpu, mmu);
+    if (rt == RT_HL) {
+      // m-cycle
+    }
+    set_flags(result == 0, 0, 0, c, cpu);
+    break;
+  }
+  case 0b101: {
+    // sra r8
+    // bit7 of r8 is unchanged
+    bool c = CHECK_BIT(data, 0);
+    uint8_t bit7 = CHECK_BIT(data, 7);
+    uint8_t result = (data >> 1) | (bit7 << 7);
+    register_set8(rt, result, cpu, mmu);
+    if (rt == RT_HL) {
+      // m-cycle
+    }
+    set_flags(result == 0, 0, 0, c, cpu);
+    break;
+  }
+  case 0b110: {
+    // swap r8
+    uint8_t result = ((data & 0xF0) >> 4) | ((data & 0xF) << 4);
+    register_set8(rt, result, cpu, mmu);
+    if (rt == RT_HL) {
+      // m-cycle
+    }
+    break;
+  }
+  case 0b111: {
+    // srl r8
+    bool c = CHECK_BIT(data, 0);
+    uint8_t result = (data >> 1);
+    register_set8(rt, result, cpu, mmu);
+    if (rt == RT_HL) {
+      // m-cycle
+    }
+    set_flags(result == 0, 0, 0, c, cpu);
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+void cb(cpu_t *cpu, mmu_t *mmu) {
+  uint8_t cb_opcode = mmu_read(cpu->regs.pc++, mmu);
+  // m-cycle
+  reg_type operand = get_cb_operand(cb_opcode & 0b111);
+  uint8_t data = get_r8_or_imm8(operand, cpu, mmu);
+  uint8_t bit_index = (cb_opcode >> 3) & 0b111;
+
+  switch (cb_opcode >> 6) {
+  case 0b00:
+    cb_block0(bit_index, operand, data, cpu, mmu);
+    break;
+  case 0b01:
+    bit(bit_index, operand, data, cpu, mmu);
+    break;
+  case 0b10:
+    res(bit_index, operand, data, cpu, mmu);
+    break;
+  case 0b11:
+    set(bit_index, operand, data, cpu, mmu);
+    break;
+  }
+}
