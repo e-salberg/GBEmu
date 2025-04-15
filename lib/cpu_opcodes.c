@@ -231,8 +231,8 @@ void instruction_C9(cpu_t *cpu, mmu_t *mmu) { ret(CC_NONE, cpu, mmu); }
 void instruction_CA(cpu_t *cpu, mmu_t *mmu) { jp_addr16(CC_Z, cpu, mmu); }
 void instruction_CB(cpu_t *cpu, mmu_t *mmu) { cb(cpu, mmu); }
 void instruction_CC(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_Z, cpu, mmu); }
-void instruction_CE(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_NONE, cpu, mmu); }
 void instruction_CD(cpu_t *cpu, mmu_t *mmu) { call_imm16(CC_NONE, cpu, mmu); }
+void instruction_CE(cpu_t *cpu, mmu_t *mmu) { adc_a_r8(RT_NONE, cpu, mmu); }
 void instruction_CF(cpu_t *cpu, mmu_t *mmu) { rst(0x08, cpu, mmu); }
 
 // 0xDX
@@ -510,6 +510,7 @@ opfunc_t optable[0x100] = {
     [0xCB] = instruction_CB,
     [0xCC] = instruction_CC,
     [0xCD] = instruction_CD,
+    [0xCE] = instruction_CE,
     [0xCF] = instruction_CF,
 
     // 0xDX

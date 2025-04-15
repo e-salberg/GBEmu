@@ -26,11 +26,17 @@ int main(int argc, char **argv) {
 }
 
 int emu_run(cpu_t *cpu, mmu_t *mmu) {
+  int ticks = 0;
   while (true) {
+    printf("%d\t", ticks);
     if (!cpu_step(cpu, mmu)) {
       printf("CPU Stopped\n");
       return -1;
     }
+    /*ticks++;
+    if (ticks > 500) {
+      return -1;
+    }*/
   }
   return 0;
 }

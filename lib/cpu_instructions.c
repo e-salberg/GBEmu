@@ -253,8 +253,12 @@ void pop_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   // m-cycle
   uint8_t hi = mmu_read(cpu->regs.sp++, mmu);
   // m-cycle
-  register_set(rt, (hi << 8) | lo, cpu);
+  uint16_t data = (hi << 8) | lo;
+  register_set(rt, data, cpu);
   // TODO - how does this work with POP AF?
+  if (rt == RT_AF) {
+    register_set(rt, data & 0xFFF0, cpu);
+  }
 }
 
 void inc_r16(reg_type rt, cpu_t *cpu) {
@@ -403,7 +407,6 @@ void rra(cpu_t *cpu) {
 
 // follows this logic https://rgbds.gbdev.io/docs/v0.9.1/gbz80.7#DAA
 void daa(cpu_t *cpu) {
-  uint8_t adj = 0;
   int cf = 0;
   bool c = CHECK_BIT(cpu->regs.f, 4);
   bool n = CHECK_BIT(cpu->regs.f, 6);
@@ -411,21 +414,19 @@ void daa(cpu_t *cpu) {
 
   if (n) {
     if (h) {
-      adj += 0x6;
+      cpu->regs.a -= 0x6;
     }
     if (c) {
-      adj += 0x60;
+      cpu->regs.a -= 0x60;
     }
-    cpu->regs.a -= adj;
   } else {
     if (h || (cpu->regs.a & 0xF) > 0x9) {
-      adj += 0x6;
+      cpu->regs.a += 0x6;
     }
     if (c || cpu->regs.a > 0x99) {
-      adj += 0x60;
+      cpu->regs.a += 0x60;
       cf = 1;
     }
-    cpu->regs.a += adj;
   }
   set_flags(cpu->regs.a == 0, -1, 0, cf, cpu);
 }
