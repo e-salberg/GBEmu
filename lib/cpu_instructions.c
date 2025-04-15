@@ -371,3 +371,70 @@ void cp_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   int c = data > cpu->regs.a;
   set_flags(z, 1, h, c, cpu);
 }
+
+void rlca(cpu_t *cpu) {
+  bool c = CHECK_BIT(cpu->regs.a, 7);
+  cpu->regs.a = (cpu->regs.a << 1) | c;
+  set_flags(0, 0, 0, c, cpu);
+}
+
+void rla(cpu_t *cpu) {
+  bool old_c = CHECK_BIT(cpu->regs.f, 4);
+  bool c = CHECK_BIT(cpu->regs.a, 7);
+
+  cpu->regs.a = (cpu->regs.a << 1) | old_c;
+  set_flags(0, 0, 0, c, cpu);
+}
+
+void rrca(cpu_t *cpu) {
+  bool c = CHECK_BIT(cpu->regs.a, 0);
+  cpu->regs.a = (cpu->regs.a >> 1) | (c << 7);
+  set_flags(0, 0, 0, c, cpu);
+}
+
+void rra(cpu_t *cpu) {
+  bool old_c = CHECK_BIT(cpu->regs.f, 4);
+  bool c = CHECK_BIT(cpu->regs.a, 0);
+  cpu->regs.a = (cpu->regs.a >> 1) | (old_c << 7);
+  set_flags(0, 0, 0, c, cpu);
+}
+
+// follows this logic https://rgbds.gbdev.io/docs/v0.9.1/gbz80.7#DAA
+void daa(cpu_t *cpu) {
+  uint8_t adj = 0;
+  int cf = 0;
+  bool c = CHECK_BIT(cpu->regs.f, 4);
+  bool n = CHECK_BIT(cpu->regs.f, 6);
+  bool h = CHECK_BIT(cpu->regs.f, 5);
+
+  if (n) {
+    if (h) {
+      adj += 0x6;
+    }
+    if (c) {
+      adj += 0x60;
+    }
+    cpu->regs.a -= adj;
+  } else {
+    if (h || (cpu->regs.a & 0xF) > 0x9) {
+      adj += 0x6;
+    }
+    if (c || cpu->regs.a > 0x99) {
+      adj += 0x60;
+      cf = 1;
+    }
+    cpu->regs.a += adj;
+  }
+  set_flags(cpu->regs.a == 0, -1, 0, cf, cpu);
+}
+
+void scf(cpu_t *cpu) { set_flags(-1, 0, 0, 1, cpu); }
+
+void cpl(cpu_t *cpu) {
+  cpu->regs.a = ~cpu->regs.a;
+  set_flags(-1, 1, 1, -1, cpu);
+}
+void ccf(cpu_t *cpu) {
+  int c = CHECK_BIT(cpu->regs.f, 4);
+  set_flags(-1, 0, 0, c ^ 1, cpu);
+}

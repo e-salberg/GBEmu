@@ -50,3 +50,12 @@ void and_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 void xor_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 void or_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 void cp_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
+
+void rlca(cpu_t *cpu);
+void rla(cpu_t *cpu);
+void rrca(cpu_t *cpu);
+void rra(cpu_t *cpu);
+void daa(cpu_t *cpu);
+void scf(cpu_t *cpu);
+void cpl(cpu_t *cpu);
+void ccf(cpu_t *cpu);
