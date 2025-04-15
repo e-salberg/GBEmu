@@ -49,6 +49,8 @@ typedef struct {
 typedef struct {
   registers_t regs;
   bool ime; // Interrupt Master Enable Flag
+  bool enabling_ime;
+  bool is_halted;
 } cpu_t;
 
 cpu_t *cpu_init();

@@ -1,18 +1,20 @@
 #include <cpu.h>
 #include <cpu_opcodes.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 static void set_flags(int8_t z, int8_t n, int8_t h, int8_t c, cpu_t *cpu) {
   if (z != -1) {
     SET_BIT(cpu->regs.f, 7, z);
   }
   if (n != -1) {
-    SET_BIT(cpu->regs.f, 6, z);
+    SET_BIT(cpu->regs.f, 6, n);
   }
   if (h != -1) {
-    SET_BIT(cpu->regs.f, 5, z);
+    SET_BIT(cpu->regs.f, 5, h);
   }
   if (c != -1) {
-    SET_BIT(cpu->regs.f, 4, z);
+    SET_BIT(cpu->regs.f, 4, c);
   }
 }
 
@@ -438,3 +440,16 @@ void ccf(cpu_t *cpu) {
   int c = CHECK_BIT(cpu->regs.f, 4);
   set_flags(-1, 0, 0, c ^ 1, cpu);
 }
+
+void stop() {
+  // TODO -
+  // https://gbdev.io/pandocs/Reducing_Power_Consumption.html#using-the-stop-instruction
+  printf("STOPPING");
+  exit(-0x73746F70);
+}
+
+void halt(cpu_t *cpu) { cpu->is_halted = true; }
+
+void ei(cpu_t *cpu) { cpu->enabling_ime = true; }
+
+void di(cpu_t *cpu) { cpu->ime = false; }

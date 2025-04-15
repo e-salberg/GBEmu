@@ -59,3 +59,8 @@ void daa(cpu_t *cpu);
 void scf(cpu_t *cpu);
 void cpl(cpu_t *cpu);
 void ccf(cpu_t *cpu);
+
+void stop();
+void halt(cpu_t *cpu);
+void ei(cpu_t *cpu);
+void di(cpu_t *cpu);

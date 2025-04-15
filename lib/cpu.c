@@ -25,13 +25,15 @@ bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
           cpu->regs.f & (1 << 6) ? 'N' : '-',
           cpu->regs.f & (1 << 5) ? 'H' : '-',
           cpu->regs.f & (1 << 4) ? 'C' : '-');
+
   char *inst_str = get_instruction_string(opcode);
 
-  printf("%04X: %s (%02X %02X %02X) A: %02X F: %s BC: %02X%02X DE: %02X%02X "
-         "HL: %02X%02X\n",
-         start_pc, inst_str, opcode, mmu_read(cpu->regs.pc, mmu),
-         mmu_read(cpu->regs.pc + 1, mmu), cpu->regs.a, flags, cpu->regs.b,
-         cpu->regs.c, cpu->regs.d, cpu->regs.e, cpu->regs.h, cpu->regs.l);
+  printf(
+      "%04X: %-12s (%02X %02X %02X)\tA: %02X F: %s BC: %02X%02X DE: %02X%02X "
+      "HL: %02X%02X\n",
+      start_pc, inst_str, opcode, mmu_read(cpu->regs.pc, mmu),
+      mmu_read(cpu->regs.pc + 1, mmu), cpu->regs.a, flags, cpu->regs.b,
+      cpu->regs.c, cpu->regs.d, cpu->regs.e, cpu->regs.h, cpu->regs.l);
 
   // execute instruction
   instruction(cpu, mmu);

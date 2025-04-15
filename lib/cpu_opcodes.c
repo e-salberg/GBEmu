@@ -20,6 +20,7 @@ void instruction_0E(cpu_t *cpu, mmu_t *mmu) { ld_r8_imm8(RT_C, cpu, mmu); }
 void instruction_0F(cpu_t *cpu, mmu_t *mmu) { rrca(cpu); }
 
 // 0x1X
+void instruction_10(cpu_t *cpu, mmu_t *mmu) { stop(); }
 void instruction_11(cpu_t *cpu, mmu_t *mmu) { ld_r16_imm16(RT_DE, cpu, mmu); }
 void instruction_12(cpu_t *cpu, mmu_t *mmu) { ld_r16mem_a(RT_DE, cpu, mmu); }
 void instruction_13(cpu_t *cpu, mmu_t *mmu) { inc_r16(RT_DE, cpu); }
@@ -133,7 +134,7 @@ void instruction_72(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_HL, RT_D, cpu, mmu); }
 void instruction_73(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_HL, RT_E, cpu, mmu); }
 void instruction_74(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_HL, RT_H, cpu, mmu); }
 void instruction_75(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_HL, RT_L, cpu, mmu); }
-void instruction_76(cpu_t *cpu, mmu_t *mmu) { /* HALT */ }
+void instruction_76(cpu_t *cpu, mmu_t *mmu) { halt(cpu); }
 void instruction_77(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_HL, RT_A, cpu, mmu); }
 void instruction_78(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_A, RT_B, cpu, mmu); }
 void instruction_79(cpu_t *cpu, mmu_t *mmu) { ld_r8_r8(RT_A, RT_C, cpu, mmu); }
@@ -265,12 +266,14 @@ void instruction_EF(cpu_t *cpu, mmu_t *mmu) { rst(0x28, cpu, mmu); }
 void instruction_F0(cpu_t *cpu, mmu_t *mmu) { ldh_a_addr(RT_NONE, cpu, mmu); }
 void instruction_F1(cpu_t *cpu, mmu_t *mmu) { pop_r16stk(RT_AF, cpu, mmu); }
 void instruction_F2(cpu_t *cpu, mmu_t *mmu) { ldh_a_addr(RT_C, cpu, mmu); }
+void instruction_F3(cpu_t *cpu, mmu_t *mmu) { di(cpu); }
 void instruction_F5(cpu_t *cpu, mmu_t *mmu) { push_r16stk(RT_AF, cpu, mmu); }
 void instruction_F6(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_NONE, cpu, mmu); }
 void instruction_F7(cpu_t *cpu, mmu_t *mmu) { rst(0x30, cpu, mmu); }
 void instruction_F8(cpu_t *cpu, mmu_t *mmu) { ld_hl_sp_plus_imm8(cpu, mmu); }
 void instruction_F9(cpu_t *cpu, mmu_t *mmu) { ld_sp_hl(cpu, mmu); }
 void instruction_FA(cpu_t *cpu, mmu_t *mmu) { ld_a_addr16(cpu, mmu); }
+void instruction_FB(cpu_t *cpu, mmu_t *mmu) { ei(cpu); }
 void instruction_FE(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_NONE, cpu, mmu); }
 void instruction_FF(cpu_t *cpu, mmu_t *mmu) { rst(0x38, cpu, mmu); }
 
@@ -294,6 +297,7 @@ opfunc_t optable[0x100] = {
     [0x0F] = instruction_0F,
 
     // 0x1X
+    [0x10] = instruction_10,
     [0x11] = instruction_11,
     [0x12] = instruction_12,
     [0x13] = instruction_13,
@@ -538,12 +542,14 @@ opfunc_t optable[0x100] = {
     [0xF0] = instruction_F0,
     [0xF1] = instruction_F1,
     [0xF2] = instruction_F2,
+    [0xF3] = instruction_F3,
     [0xF5] = instruction_F5,
     [0xF6] = instruction_F6,
     [0xF7] = instruction_F7,
     [0xF8] = instruction_F8,
     [0xF9] = instruction_F9,
     [0xFA] = instruction_FA,
+    [0xFB] = instruction_FB,
     [0xFE] = instruction_FE,
     [0xFF] = instruction_FF,
 };
@@ -568,7 +574,7 @@ char *inst_to_string[0x100] = {
     [0x0F] = "RRCA",
 
     // 0x1X
-    [0x10] = "",
+    [0x10] = "STOP",
     [0x11] = "LD DE, n16",
     [0x12] = "LD [DE], A",
     [0x13] = "INC DE",
@@ -803,7 +809,7 @@ char *inst_to_string[0x100] = {
     [0xE1] = "POP HL",
     [0xE2] = "LDH [C], A",
     [0xE5] = "PUSH HL",
-    [0xE6] = "AND A, A",
+    [0xE6] = "AND A, n8",
     [0xE7] = "RST 0x20",
     [0xE8] = "ADD SP, e8",
     [0xE9] = "JP HL",
@@ -815,14 +821,14 @@ char *inst_to_string[0x100] = {
     [0xF0] = "LDH A, [a8]",
     [0xF1] = "POP AF",
     [0xF2] = "LDH A, [C]",
-    [0xF3] = "",
+    [0xF3] = "DI",
     [0xF5] = "PUSH AF",
     [0xF6] = "OR A, n8",
     [0xF7] = "RST 0x30",
     [0xF8] = "LD HL, SP + e8",
     [0xF9] = "LD SP, HL",
     [0xFA] = "LD A, [a16]",
-    [0xFB] = "",
+    [0xFB] = "EI",
     [0xFE] = "CP A, n8",
     [0xFF] = "RST 0x38",
 };
