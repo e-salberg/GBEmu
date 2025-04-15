@@ -172,6 +172,42 @@ void instruction_9D(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_L, cpu, mmu); }
 void instruction_9E(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_HL, cpu, mmu); }
 void instruction_9F(cpu_t *cpu, mmu_t *mmu) { sbc_a_r8(RT_A, cpu, mmu); }
 
+// 0xAX
+void instruction_A0(cpu_t *cpu, mmu_t *mmu) { and_a_r8(RT_B, cpu, mmu); }
+void instruction_A1(cpu_t *cpu, mmu_t *mmu) { and_a_r8(RT_C, cpu, mmu); }
+void instruction_A2(cpu_t *cpu, mmu_t *mmu) { and_a_r8(RT_D, cpu, mmu); }
+void instruction_A3(cpu_t *cpu, mmu_t *mmu) { and_a_r8(RT_E, cpu, mmu); }
+void instruction_A4(cpu_t *cpu, mmu_t *mmu) { and_a_r8(RT_H, cpu, mmu); }
+void instruction_A5(cpu_t *cpu, mmu_t *mmu) { and_a_r8(RT_L, cpu, mmu); }
+void instruction_A6(cpu_t *cpu, mmu_t *mmu) { and_a_r8(RT_HL, cpu, mmu); }
+void instruction_A7(cpu_t *cpu, mmu_t *mmu) { and_a_r8(RT_A, cpu, mmu); }
+void instruction_A8(cpu_t *cpu, mmu_t *mmu) { xor_a_r8(RT_B, cpu, mmu); }
+void instruction_A9(cpu_t *cpu, mmu_t *mmu) { xor_a_r8(RT_C, cpu, mmu); }
+void instruction_AA(cpu_t *cpu, mmu_t *mmu) { xor_a_r8(RT_D, cpu, mmu); }
+void instruction_AB(cpu_t *cpu, mmu_t *mmu) { xor_a_r8(RT_E, cpu, mmu); }
+void instruction_AC(cpu_t *cpu, mmu_t *mmu) { xor_a_r8(RT_H, cpu, mmu); }
+void instruction_AD(cpu_t *cpu, mmu_t *mmu) { xor_a_r8(RT_L, cpu, mmu); }
+void instruction_AE(cpu_t *cpu, mmu_t *mmu) { xor_a_r8(RT_HL, cpu, mmu); }
+void instruction_AF(cpu_t *cpu, mmu_t *mmu) { xor_a_r8(RT_A, cpu, mmu); }
+
+// 0xBX
+void instruction_B0(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_B, cpu, mmu); }
+void instruction_B1(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_C, cpu, mmu); }
+void instruction_B2(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_D, cpu, mmu); }
+void instruction_B3(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_E, cpu, mmu); }
+void instruction_B4(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_H, cpu, mmu); }
+void instruction_B5(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_L, cpu, mmu); }
+void instruction_B6(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_HL, cpu, mmu); }
+void instruction_B7(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_A, cpu, mmu); }
+void instruction_B8(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_B, cpu, mmu); }
+void instruction_B9(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_C, cpu, mmu); }
+void instruction_BA(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_D, cpu, mmu); }
+void instruction_BB(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_E, cpu, mmu); }
+void instruction_BC(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_H, cpu, mmu); }
+void instruction_BD(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_L, cpu, mmu); }
+void instruction_BE(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_HL, cpu, mmu); }
+void instruction_BF(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_A, cpu, mmu); }
+
 // 0xCX
 void instruction_C0(cpu_t *cpu, mmu_t *mmu) { ret(CC_NZ, cpu, mmu); }
 void instruction_C1(cpu_t *cpu, mmu_t *mmu) { pop_r16stk(RT_BC, cpu, mmu); }
@@ -209,10 +245,12 @@ void instruction_E0(cpu_t *cpu, mmu_t *mmu) { ldh_addr_a(RT_NONE, cpu, mmu); }
 void instruction_E1(cpu_t *cpu, mmu_t *mmu) { pop_r16stk(RT_HL, cpu, mmu); }
 void instruction_E2(cpu_t *cpu, mmu_t *mmu) { ldh_addr_a(RT_C, cpu, mmu); }
 void instruction_E5(cpu_t *cpu, mmu_t *mmu) { push_r16stk(RT_HL, cpu, mmu); }
+void instruction_E6(cpu_t *cpu, mmu_t *mmu) { and_a_r8(RT_NONE, cpu, mmu); }
 void instruction_E7(cpu_t *cpu, mmu_t *mmu) { rst(0x20, cpu, mmu); }
 void instruction_E8(cpu_t *cpu, mmu_t *mmu) { add_sp_e8(cpu, mmu); }
 void instruction_E9(cpu_t *cpu, mmu_t *mmu) { jp_hl(cpu); }
 void instruction_EA(cpu_t *cpu, mmu_t *mmu) { ld_addr16_a(cpu, mmu); }
+void instruction_EE(cpu_t *cpu, mmu_t *mmu) { xor_a_r8(RT_NONE, cpu, mmu); }
 void instruction_EF(cpu_t *cpu, mmu_t *mmu) { rst(0x28, cpu, mmu); }
 
 // 0xFX
@@ -220,10 +258,12 @@ void instruction_F0(cpu_t *cpu, mmu_t *mmu) { ldh_a_addr(RT_NONE, cpu, mmu); }
 void instruction_F1(cpu_t *cpu, mmu_t *mmu) { pop_r16stk(RT_AF, cpu, mmu); }
 void instruction_F2(cpu_t *cpu, mmu_t *mmu) { ldh_a_addr(RT_C, cpu, mmu); }
 void instruction_F5(cpu_t *cpu, mmu_t *mmu) { push_r16stk(RT_AF, cpu, mmu); }
+void instruction_F6(cpu_t *cpu, mmu_t *mmu) { or_a_r8(RT_NONE, cpu, mmu); }
 void instruction_F7(cpu_t *cpu, mmu_t *mmu) { rst(0x30, cpu, mmu); }
 void instruction_F8(cpu_t *cpu, mmu_t *mmu) { ld_hl_sp_plus_imm8(cpu, mmu); }
 void instruction_F9(cpu_t *cpu, mmu_t *mmu) { ld_sp_hl(cpu, mmu); }
 void instruction_FA(cpu_t *cpu, mmu_t *mmu) { ld_a_addr16(cpu, mmu); }
+void instruction_FE(cpu_t *cpu, mmu_t *mmu) { cp_a_r8(RT_NONE, cpu, mmu); }
 void instruction_FF(cpu_t *cpu, mmu_t *mmu) { rst(0x38, cpu, mmu); }
 
 opfunc_t optable[0x100] = {
@@ -371,6 +411,14 @@ opfunc_t optable[0x100] = {
     [0x85] = instruction_85,
     [0x86] = instruction_86,
     [0x87] = instruction_87,
+    [0x88] = instruction_88,
+    [0x89] = instruction_89,
+    [0x8A] = instruction_8A,
+    [0x8B] = instruction_8B,
+    [0x8C] = instruction_8C,
+    [0x8D] = instruction_8D,
+    [0x8E] = instruction_8E,
+    [0x8F] = instruction_8F,
 
     // 0x9X
     [0x90] = instruction_90,
@@ -389,6 +437,42 @@ opfunc_t optable[0x100] = {
     [0x9D] = instruction_9D,
     [0x9E] = instruction_9E,
     [0x9F] = instruction_9F,
+
+    // 0xAX
+    [0xA0] = instruction_A0,
+    [0xA1] = instruction_A1,
+    [0xA2] = instruction_A2,
+    [0xA3] = instruction_A3,
+    [0xA4] = instruction_A4,
+    [0xA5] = instruction_A5,
+    [0xA6] = instruction_A6,
+    [0xA7] = instruction_A7,
+    [0xA8] = instruction_A8,
+    [0xA9] = instruction_A9,
+    [0xAA] = instruction_AA,
+    [0xAB] = instruction_AB,
+    [0xAC] = instruction_AC,
+    [0xAD] = instruction_AD,
+    [0xAE] = instruction_AE,
+    [0xAF] = instruction_AF,
+
+    // 0xBX
+    [0xB0] = instruction_B0,
+    [0xB1] = instruction_B1,
+    [0xB2] = instruction_B2,
+    [0xB3] = instruction_B3,
+    [0xB4] = instruction_B4,
+    [0xB5] = instruction_B5,
+    [0xB6] = instruction_B6,
+    [0xB7] = instruction_B7,
+    [0xB8] = instruction_B8,
+    [0xB9] = instruction_B9,
+    [0xBA] = instruction_BA,
+    [0xBB] = instruction_BB,
+    [0xBC] = instruction_BC,
+    [0xBD] = instruction_BD,
+    [0xBE] = instruction_BE,
+    [0xBF] = instruction_BF,
 
     // 0xCX
     [0xC0] = instruction_C0,
@@ -426,10 +510,12 @@ opfunc_t optable[0x100] = {
     [0xE1] = instruction_E1,
     [0xE2] = instruction_E2,
     [0xE5] = instruction_E5,
+    [0xE6] = instruction_E6,
     [0xE7] = instruction_E7,
     [0xE8] = instruction_E8,
     [0xE9] = instruction_E9,
     [0xEA] = instruction_EA,
+    [0xEE] = instruction_EE,
     [0xEF] = instruction_EF,
 
     // 0xFX
@@ -437,10 +523,12 @@ opfunc_t optable[0x100] = {
     [0xF1] = instruction_F1,
     [0xF2] = instruction_F2,
     [0xF5] = instruction_F5,
+    [0xF6] = instruction_F6,
     [0xF7] = instruction_F7,
     [0xF8] = instruction_F8,
     [0xF9] = instruction_F9,
     [0xFA] = instruction_FA,
+    [0xFE] = instruction_FE,
     [0xFF] = instruction_FF,
 };
 
@@ -598,14 +686,14 @@ char *inst_to_string[0x100] = {
     [0x85] = "ADD A, L",
     [0x86] = "ADD A, [HL]",
     [0x87] = "ADD A, A",
-    [0x88] = "",
-    [0x89] = "",
-    [0x8A] = "",
-    [0x8B] = "",
-    [0x8C] = "",
-    [0x8D] = "",
-    [0x8E] = "",
-    [0x8F] = "",
+    [0x88] = "ADC A, B",
+    [0x89] = "ADC A, C",
+    [0x8A] = "ADC A, D",
+    [0x8B] = "ADC A, E",
+    [0x8C] = "ADC A, H",
+    [0x8D] = "ADC A, L",
+    [0x8E] = "ADC A, [HL]",
+    [0x8F] = "ADC A, A",
 
     // 0x9X
     [0x90] = "SUB A, B",
@@ -626,40 +714,40 @@ char *inst_to_string[0x100] = {
     [0x9F] = "SBC A, A",
 
     // 0xAX
-    [0xA0] = "",
-    [0xA1] = "",
-    [0xA2] = "",
-    [0xA3] = "",
-    [0xA4] = "",
-    [0xA5] = "",
-    [0xA6] = "",
-    [0xA7] = "",
-    [0xA8] = "",
-    [0xA9] = "",
-    [0xAA] = "",
-    [0xAB] = "",
-    [0xAC] = "",
-    [0xAD] = "",
-    [0xAE] = "",
-    [0xAF] = "",
+    [0xA0] = "AND A, B",
+    [0xA1] = "AND A, C",
+    [0xA2] = "AND A, D",
+    [0xA3] = "AND A, E",
+    [0xA4] = "AND A, H",
+    [0xA5] = "AND A, L",
+    [0xA6] = "AND A, [HL]",
+    [0xA7] = "AND A, A",
+    [0xA8] = "XOR A, B",
+    [0xA9] = "XOR A, C",
+    [0xAA] = "XOR A, D",
+    [0xAB] = "XOR A, E",
+    [0xAC] = "XOR A, H",
+    [0xAD] = "XOR A, L",
+    [0xAE] = "XOR A, [HL]",
+    [0xAF] = "XOR A, A",
 
     // 0xBX
-    [0xB0] = "",
-    [0xB1] = "",
-    [0xB2] = "",
-    [0xB3] = "",
-    [0xB4] = "",
-    [0xB5] = "",
-    [0xB6] = "",
-    [0xB7] = "",
-    [0xB8] = "",
-    [0xB9] = "",
-    [0xBA] = "",
-    [0xBB] = "",
-    [0xBC] = "",
-    [0xBD] = "",
-    [0xBE] = "",
-    [0xBF] = "",
+    [0xB0] = "OR A, B",
+    [0xB1] = "OR A, C",
+    [0xB2] = "OR A, D",
+    [0xB3] = "OR A, E",
+    [0xB4] = "OR A, H",
+    [0xB5] = "OR A, L",
+    [0xB6] = "OR A, [HL]",
+    [0xB7] = "OR A, A",
+    [0xB8] = "CP A, B",
+    [0xB9] = "CP A, C",
+    [0xBA] = "CP A, D",
+    [0xBB] = "CP A, E",
+    [0xBC] = "CP A, H",
+    [0xBD] = "CP A, L",
+    [0xBE] = "CP A, [HL]",
+    [0xBF] = "CP A, A",
 
     // 0xCX
     [0xC0] = "RET NZ",
@@ -676,7 +764,7 @@ char *inst_to_string[0x100] = {
     [0xCB] = "",
     [0xCC] = "CALL Z, a16",
     [0xCD] = "CALL a16",
-    [0xCE] = "",
+    [0xCE] = "ADC A, n8",
     [0xCF] = "RST 0x08",
 
     // 0xDX
@@ -699,12 +787,12 @@ char *inst_to_string[0x100] = {
     [0xE1] = "POP HL",
     [0xE2] = "LDH [C], A",
     [0xE5] = "PUSH HL",
-    [0xE6] = "",
+    [0xE6] = "AND A, A",
     [0xE7] = "RST 0x20",
     [0xE8] = "ADD SP, e8",
     [0xE9] = "JP HL",
     [0xEA] = "LD [a16], A",
-    [0xEE] = "",
+    [0xEE] = "XOR A, n8",
     [0xEF] = "RST 0x28",
 
     // 0xFX
@@ -713,13 +801,13 @@ char *inst_to_string[0x100] = {
     [0xF2] = "LDH A, [C]",
     [0xF3] = "",
     [0xF5] = "PUSH AF",
-    [0xF6] = "",
+    [0xF6] = "OR A, n8",
     [0xF7] = "RST 0x30",
     [0xF8] = "LD HL, SP + e8",
     [0xF9] = "LD SP, HL",
     [0xFA] = "LD A, [a16]",
     [0xFB] = "",
-    [0xFE] = "",
+    [0xFE] = "CP A, n8",
     [0xFF] = "RST 0x38",
 };
 

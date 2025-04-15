@@ -46,3 +46,7 @@ void add_sp_e8(cpu_t *cpu, mmu_t *mmu);
 void adc_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 void sub_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
 void sbc_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
+void and_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
+void xor_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
+void or_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
+void cp_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu);
