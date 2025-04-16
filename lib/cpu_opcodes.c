@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <cpu_opcodes.h>
+#include <stdio.h>
 
 // 0x0X
 void instruction_00(cpu_t *cpu, mmu_t *mmu) { /* NO-OP */ }
@@ -557,285 +558,777 @@ opfunc_t optable[0x100] = {
     [0xFF] = instruction_FF,
 };
 
-char *inst_to_string[0x100] = {
-    // 0x0X
-    [0x00] = "NOP",
-    [0x01] = "LD BC, n16",
-    [0x02] = "LD [BC], A",
-    [0x03] = "INC BC",
-    [0x04] = "INC B",
-    [0x05] = "DEC B",
-    [0x06] = "LD B, n8",
-    [0x07] = "RLCA",
-    [0x08] = "LD [a16], SP",
-    [0x09] = "ADD HL, BC",
-    [0x0A] = "LD A, [BC]",
-    [0x0B] = "DEC BC",
-    [0x0C] = "INC C",
-    [0x0D] = "DEC C",
-    [0x0E] = "LD C, n8",
-    [0x0F] = "RRCA",
+void get_instruction_string(uint8_t opcode, char *str, cpu_t *cpu, mmu_t *mmu) {
+  switch (opcode) {
+  // 0x0X
+  case 0x00:
+    sprintf(str, "NOP");
+    return;
+  case 0x01:
+    sprintf(str, "LD BC, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0x02:
+    sprintf(str, "LD [BC], A");
+    return;
+  case 0x03:
+    sprintf(str, "INC BC");
+    return;
+  case 0x04:
+    sprintf(str, "INC B");
+    return;
+  case 0x05:
+    sprintf(str, "DEC B");
+    return;
+  case 0x06:
+    sprintf(str, "LD B, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x07:
+    sprintf(str, "RLCA");
+    return;
+  case 0x08:
+    sprintf(str, "LD [$%04X], SP", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x09:
+    sprintf(str, "ADD HL, BC");
+    return;
+  case 0x0A:
+    sprintf(str, "LD A, [BC]");
+    return;
+  case 0x0B:
+    sprintf(str, "DEC BC");
+    return;
+  case 0x0C:
+    sprintf(str, "INC C");
+    return;
+  case 0x0D:
+    sprintf(str, "DEC C");
+    return;
+  case 0x0E:
+    sprintf(str, "LD C, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x0F:
+    sprintf(str, "RRCA");
+    return;
 
-    // 0x1X
-    [0x10] = "STOP",
-    [0x11] = "LD DE, n16",
-    [0x12] = "LD [DE], A",
-    [0x13] = "INC DE",
-    [0x14] = "INC D",
-    [0x15] = "DEC D",
-    [0x16] = "LD D, n8",
-    [0x17] = "RLA",
-    [0x18] = "JR e8",
-    [0x19] = "ADD HL, DE",
-    [0x1A] = "LD A, [DE]",
-    [0x1B] = "DEC DE",
-    [0x1C] = "INC E",
-    [0x1D] = "DEC E",
-    [0x1E] = "LD E, n8",
-    [0x1F] = "RRA",
+  // 0x1X
+  case 0x10:
+    sprintf(str, "STOP");
+    return;
+  case 0x11:
+    sprintf(str, "LD DE, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0x12:
+    sprintf(str, "LD [DE], A");
+    return;
+  case 0x13:
+    sprintf(str, "INC DE");
+    return;
+  case 0x14:
+    sprintf(str, "INC D");
+    return;
+  case 0x15:
+    sprintf(str, "DEC D");
+    return;
+  case 0x16:
+    sprintf(str, "LD D, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x17:
+    sprintf(str, "RLA");
+    return;
+  case 0x18:
+    sprintf(str, "JR $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x19:
+    sprintf(str, "ADD HL, DE");
+    return;
+  case 0x1A:
+    sprintf(str, "LD A, [DE]");
+    return;
+  case 0x1B:
+    sprintf(str, "DEC DE");
+    return;
+  case 0x1C:
+    sprintf(str, "INC E");
+    return;
+  case 0x1D:
+    sprintf(str, "DEC E");
+    return;
+  case 0x1E:
+    sprintf(str, "LD E, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x1F:
+    sprintf(str, "RRA");
+    return;
 
-    // 0x2X
-    [0x20] = "JR NZ, e8",
-    [0x21] = "LD HL, n16",
-    [0x22] = "LD [HL+], A",
-    [0x23] = "INC HL",
-    [0x24] = "INC H",
-    [0x25] = "DEC H",
-    [0x26] = "LD H, n8",
-    [0x27] = "DAA",
-    [0x28] = "JR Z, e8",
-    [0x29] = "ADD HL, HL",
-    [0x2A] = "LD A, [HLI]",
-    [0x2B] = "DEC HL",
-    [0x2C] = "INC L",
-    [0x2D] = "DEC L",
-    [0x2E] = "LD L, n8",
-    [0x2F] = "CPL",
+  // 0x2X
+  case 0x20:
+    sprintf(str, "JR NZ, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x21:
+    sprintf(str, "LD HL, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0x22:
+    sprintf(str, "LD [HL+], A");
+    return;
+  case 0x23:
+    sprintf(str, "INC HL");
+    return;
+  case 0x24:
+    sprintf(str, "INC H");
+    return;
+  case 0x25:
+    sprintf(str, "DEC H");
+    return;
+  case 0x26:
+    sprintf(str, "LD H, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x27:
+    sprintf(str, "DAA");
+    return;
+  case 0x28:
+    sprintf(str, "JR Z, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x29:
+    sprintf(str, "ADD HL, HL");
+    return;
+  case 0x2A:
+    sprintf(str, "LD A, [HL+]");
+    return;
+  case 0x2B:
+    sprintf(str, "DEC HL");
+    return;
+  case 0x2C:
+    sprintf(str, "INC L");
+    return;
+  case 0x2D:
+    sprintf(str, "DEC L");
+    return;
+  case 0x2E:
+    sprintf(str, "LD L, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x2F:
+    sprintf(str, "CPL");
+    return;
 
-    // 0x3X
-    [0x30] = "JR NC, e8",
-    [0x31] = "LD SP, n16",
-    [0x32] = "LD [HL-], A",
-    [0x33] = "INC SP",
-    [0x34] = "INC [HL]",
-    [0x35] = "DEC [HL]",
-    [0x36] = "LD [HL], n8",
-    [0x37] = "SCF",
-    [0x38] = "JR C, e8",
-    [0x39] = "ADD HL, SP",
-    [0x3A] = "LD A, [HLD]",
-    [0x3B] = "DEC SP",
-    [0x3C] = "INC A",
-    [0x3D] = "DEC A",
-    [0x3E] = "LD A, n8",
-    [0x3F] = "CCF",
+  // 0x3X
+  case 0x30:
+    sprintf(str, "JR NC, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x31:
+    sprintf(str, "LD SP, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0x32:
+    sprintf(str, "LD [HL-], A");
+    return;
+  case 0x33:
+    sprintf(str, "INC SP");
+    return;
+  case 0x34:
+    sprintf(str, "INC [HL]");
+    return;
+  case 0x35:
+    sprintf(str, "DEC [HL]");
+    return;
+  case 0x36:
+    sprintf(str, "LD [HL], $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x37:
+    sprintf(str, "SCF");
+    return;
+  case 0x38:
+    sprintf(str, "JR C, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x39:
+    sprintf(str, "ADD HL, SP");
+    return;
+  case 0x3A:
+    sprintf(str, "LD A, [HL-]");
+    return;
+  case 0x3B:
+    sprintf(str, "DEC SP");
+    return;
+  case 0x3C:
+    sprintf(str, "INC A");
+    return;
+  case 0x3D:
+    sprintf(str, "DEC A");
+    return;
+  case 0x3E:
+    sprintf(str, "LD A, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0x3F:
+    sprintf(str, "CCF");
+    return;
 
-    // 0x4X
-    [0x40] = "LD B, B",
-    [0x41] = "LD B, C",
-    [0x42] = "LD B, D",
-    [0x43] = "LD B, E",
-    [0x44] = "LD B, H",
-    [0x45] = "LD B, L",
-    [0x46] = "LD B, [HL]",
-    [0x47] = "LD B, A",
-    [0x48] = "LD C, B",
-    [0x49] = "LD C, C",
-    [0x4A] = "LD C, D",
-    [0x4B] = "LD C, E",
-    [0x4C] = "LD C, H",
-    [0x4D] = "LD C, L",
-    [0x4E] = "LD C, [HL]",
-    [0x4F] = "LD C, A",
+  // 0x4X
+  case 0x40:
+    sprintf(str, "LD B, B");
+    return;
+  case 0x41:
+    sprintf(str, "LD B, C");
+    return;
+  case 0x42:
+    sprintf(str, "LD B, D");
+    return;
+  case 0x43:
+    sprintf(str, "LD B, E");
+    return;
+  case 0x44:
+    sprintf(str, "LD B, H");
+    return;
+  case 0x45:
+    sprintf(str, "LD B, L");
+    return;
+  case 0x46:
+    sprintf(str, "LD B, [HL]");
+    return;
+  case 0x47:
+    sprintf(str, "LD B, A");
+    return;
+  case 0x48:
+    sprintf(str, "LD C, B");
+    return;
+  case 0x49:
+    sprintf(str, "LD C, C");
+    return;
+  case 0x4A:
+    sprintf(str, "LD C, D");
+    return;
+  case 0x4B:
+    sprintf(str, "LD C, E");
+    return;
+  case 0x4C:
+    sprintf(str, "LD C, H");
+    return;
+  case 0x4D:
+    sprintf(str, "LD C, L");
+    return;
+  case 0x4E:
+    sprintf(str, "LD C, [HL]");
+    return;
+  case 0x4F:
+    sprintf(str, "LD C, A");
+    return;
 
-    // 0x5X
-    [0x50] = "LD D, B",
-    [0x51] = "LD D, C",
-    [0x52] = "LD D, D",
-    [0x53] = "LD D, E",
-    [0x54] = "LD D, H",
-    [0x55] = "LD D, L",
-    [0x56] = "LD D, [HL]",
-    [0x57] = "LD D, A",
-    [0x58] = "LD E, B",
-    [0x59] = "LD E, C",
-    [0x5A] = "LD E, D",
-    [0x5B] = "LD E, E",
-    [0x5C] = "LD E, H",
-    [0x5D] = "LD E, L",
-    [0x5E] = "LD E, [HL]",
-    [0x5F] = "LD E, A",
+  // 0x5X
+  case 0x50:
+    sprintf(str, "LD D, B");
+    return;
+  case 0x51:
+    sprintf(str, "LD D, C");
+    return;
+  case 0x52:
+    sprintf(str, "LD D, D");
+    return;
+  case 0x53:
+    sprintf(str, "LD D, E");
+    return;
+  case 0x54:
+    sprintf(str, "LD D, H");
+    return;
+  case 0x55:
+    sprintf(str, "LD D, L");
+    return;
+  case 0x56:
+    sprintf(str, "LD D, [HL]");
+    return;
+  case 0x57:
+    sprintf(str, "LD D, A");
+    return;
+  case 0x58:
+    sprintf(str, "LD E, B");
+    return;
+  case 0x59:
+    sprintf(str, "LD E, C");
+    return;
+  case 0x5A:
+    sprintf(str, "LD E, D");
+    return;
+  case 0x5B:
+    sprintf(str, "LD E, E");
+    return;
+  case 0x5C:
+    sprintf(str, "LD E, H");
+    return;
+  case 0x5D:
+    sprintf(str, "LD E, L");
+    return;
+  case 0x5E:
+    sprintf(str, "LD E, [HL]");
+    return;
+  case 0x5F:
+    sprintf(str, "LD E, A");
+    return;
 
-    // 0x6X
-    [0x60] = "LD H, B",
-    [0x61] = "LD H, C",
-    [0x62] = "LD H, D",
-    [0x63] = "LD H, E",
-    [0x64] = "LD H, H",
-    [0x65] = "LD H, L",
-    [0x66] = "LD H, [HL]",
-    [0x67] = "LD H, A",
-    [0x68] = "LD L, B",
-    [0x69] = "LD L, C",
-    [0x6A] = "LD L, D",
-    [0x6B] = "LD L, E",
-    [0x6C] = "LD L, H",
-    [0x6D] = "LD L, L",
-    [0x6E] = "LD L, [HL]",
-    [0x6F] = "LD L, A",
+  // 0x6X
+  case 0x60:
+    sprintf(str, "LD H, B");
+    return;
+  case 0x61:
+    sprintf(str, "LD H, C");
+    return;
+  case 0x62:
+    sprintf(str, "LD H, D");
+    return;
+  case 0x63:
+    sprintf(str, "LD H, E");
+    return;
+  case 0x64:
+    sprintf(str, "LD H, H");
+    return;
+  case 0x65:
+    sprintf(str, "LD H, L");
+    return;
+  case 0x66:
+    sprintf(str, "LD H, [HL]");
+    return;
+  case 0x67:
+    sprintf(str, "LD H, A");
+    return;
+  case 0x68:
+    sprintf(str, "LD L, B");
+    return;
+  case 0x69:
+    sprintf(str, "LD L, C");
+    return;
+  case 0x6A:
+    sprintf(str, "LD L, D");
+    return;
+  case 0x6B:
+    sprintf(str, "LD L, E");
+    return;
+  case 0x6C:
+    sprintf(str, "LD L, H");
+    return;
+  case 0x6D:
+    sprintf(str, "LD L, L");
+    return;
+  case 0x6E:
+    sprintf(str, "LD L, [HL]");
+    return;
+  case 0x6F:
+    sprintf(str, "LD L, A");
+    return;
 
-    // 0x7X
-    [0x70] = "LD [HL], B",
-    [0x71] = "LD [HL], C",
-    [0x72] = "LD [HL], D",
-    [0x73] = "LD [HL], E",
-    [0x74] = "LD [HL], H",
-    [0x75] = "LD [HL], L",
-    [0x76] = "HALT",
-    [0x77] = "LD [HL], A",
-    [0x78] = "LD A, B",
-    [0x79] = "LD A, C",
-    [0x7A] = "LD A, D",
-    [0x7B] = "LD A, E",
-    [0x7C] = "LD A, H",
-    [0x7D] = "LD A, L",
-    [0x7E] = "LD A, [HL]",
-    [0x7F] = "LD A, A",
+  // 0x7X
+  case 0x70:
+    sprintf(str, "LD [HL], B");
+    return;
+  case 0x71:
+    sprintf(str, "LD [HL], C");
+    return;
+  case 0x72:
+    sprintf(str, "LD [HL], D");
+    return;
+  case 0x73:
+    sprintf(str, "LD [HL], E");
+    return;
+  case 0x74:
+    sprintf(str, "LD [HL], H");
+    return;
+  case 0x75:
+    sprintf(str, "LD [HL], L");
+    return;
+  case 0x76:
+    sprintf(str, "HALT");
+    return;
+  case 0x77:
+    sprintf(str, "LD [HL], A");
+    return;
+  case 0x78:
+    sprintf(str, "LD A, B");
+    return;
+  case 0x79:
+    sprintf(str, "LD A, C");
+    return;
+  case 0x7A:
+    sprintf(str, "LD A, D");
+    return;
+  case 0x7B:
+    sprintf(str, "LD A, E");
+    return;
+  case 0x7C:
+    sprintf(str, "LD A, H");
+    return;
+  case 0x7D:
+    sprintf(str, "LD A, L");
+    return;
+  case 0x7E:
+    sprintf(str, "LD A, [HL]");
+    return;
+  case 0x7F:
+    sprintf(str, "LD A, A");
+    return;
 
-    // 0x8X
-    [0x80] = "ADD A, B",
-    [0x81] = "ADD A, C",
-    [0x82] = "ADD A, D",
-    [0x83] = "ADD A, E",
-    [0x84] = "ADD A, H",
-    [0x85] = "ADD A, L",
-    [0x86] = "ADD A, [HL]",
-    [0x87] = "ADD A, A",
-    [0x88] = "ADC A, B",
-    [0x89] = "ADC A, C",
-    [0x8A] = "ADC A, D",
-    [0x8B] = "ADC A, E",
-    [0x8C] = "ADC A, H",
-    [0x8D] = "ADC A, L",
-    [0x8E] = "ADC A, [HL]",
-    [0x8F] = "ADC A, A",
+  // 0x8X
+  case 0x80:
+    sprintf(str, "ADD A, B");
+    return;
+  case 0x81:
+    sprintf(str, "ADD A, C");
+    return;
+  case 0x82:
+    sprintf(str, "ADD A, D");
+    return;
+  case 0x83:
+    sprintf(str, "ADD A, E");
+    return;
+  case 0x84:
+    sprintf(str, "ADD A, H");
+    return;
+  case 0x85:
+    sprintf(str, "ADD A, L");
+    return;
+  case 0x86:
+    sprintf(str, "ADD A, [HL]");
+    return;
+  case 0x87:
+    sprintf(str, "ADD A, A");
+    return;
+  case 0x88:
+    sprintf(str, "ADC A, B");
+    return;
+  case 0x89:
+    sprintf(str, "ADC A, C");
+    return;
+  case 0x8A:
+    sprintf(str, "ADC A, D");
+    return;
+  case 0x8B:
+    sprintf(str, "ADC A, E");
+    return;
+  case 0x8C:
+    sprintf(str, "ADC A, H");
+    return;
+  case 0x8D:
+    sprintf(str, "ADC A, L");
+    return;
+  case 0x8E:
+    sprintf(str, "ADC A, [HL]");
+    return;
+  case 0x8F:
+    sprintf(str, "ADC A, A");
+    return;
 
-    // 0x9X
-    [0x90] = "SUB A, B",
-    [0x91] = "SUB A, C",
-    [0x92] = "SUB A, D",
-    [0x93] = "SUB A, E",
-    [0x94] = "SUB A, H",
-    [0x95] = "SUB A, L",
-    [0x96] = "SUB A, [HL]",
-    [0x97] = "SUB A, A",
-    [0x98] = "SBC A, B",
-    [0x99] = "SBC A, C",
-    [0x9A] = "SBC A, D",
-    [0x9B] = "SBC A, E",
-    [0x9C] = "SBC A, H",
-    [0x9D] = "SBC A, L",
-    [0x9E] = "SBC A, [HL]",
-    [0x9F] = "SBC A, A",
+  // 0x9X
+  case 0x90:
+    sprintf(str, "SUB A, B");
+    return;
+  case 0x91:
+    sprintf(str, "SUB A, C");
+    return;
+  case 0x92:
+    sprintf(str, "SUB A, D");
+    return;
+  case 0x93:
+    sprintf(str, "SUB A, E");
+    return;
+  case 0x94:
+    sprintf(str, "SUB A, H");
+    return;
+  case 0x95:
+    sprintf(str, "SUB A, L");
+    return;
+  case 0x96:
+    sprintf(str, "SUB A, [HL]");
+    return;
+  case 0x97:
+    sprintf(str, "SUB A, A");
+    return;
+  case 0x98:
+    sprintf(str, "SBC A, B");
+    return;
+  case 0x99:
+    sprintf(str, "SBC A, C");
+    return;
+  case 0x9A:
+    sprintf(str, "SBC A, D");
+    return;
+  case 0x9B:
+    sprintf(str, "SBC A, E");
+    return;
+  case 0x9C:
+    sprintf(str, "SBC A, H");
+    return;
+  case 0x9D:
+    sprintf(str, "SBC A, L");
+    return;
+  case 0x9E:
+    sprintf(str, "SBC A, [HL]");
+    return;
+  case 0x9F:
+    sprintf(str, "SBC A, A");
+    return;
 
-    // 0xAX
-    [0xA0] = "AND A, B",
-    [0xA1] = "AND A, C",
-    [0xA2] = "AND A, D",
-    [0xA3] = "AND A, E",
-    [0xA4] = "AND A, H",
-    [0xA5] = "AND A, L",
-    [0xA6] = "AND A, [HL]",
-    [0xA7] = "AND A, A",
-    [0xA8] = "XOR A, B",
-    [0xA9] = "XOR A, C",
-    [0xAA] = "XOR A, D",
-    [0xAB] = "XOR A, E",
-    [0xAC] = "XOR A, H",
-    [0xAD] = "XOR A, L",
-    [0xAE] = "XOR A, [HL]",
-    [0xAF] = "XOR A, A",
+  // 0xAX
+  case 0xA0:
+    sprintf(str, "AND A, B");
+    return;
+  case 0xA1:
+    sprintf(str, "AND A, C");
+    return;
+  case 0xA2:
+    sprintf(str, "AND A, D");
+    return;
+  case 0xA3:
+    sprintf(str, "AND A, E");
+    return;
+  case 0xA4:
+    sprintf(str, "AND A, H");
+    return;
+  case 0xA5:
+    sprintf(str, "AND A, L");
+    return;
+  case 0xA6:
+    sprintf(str, "AND A, [HL]");
+    return;
+  case 0xA7:
+    sprintf(str, "AND A, A");
+    return;
+  case 0xA8:
+    sprintf(str, "XOR A, B");
+    return;
+  case 0xA9:
+    sprintf(str, "XOR A, C");
+    return;
+  case 0xAA:
+    sprintf(str, "XOR A, D");
+    return;
+  case 0xAB:
+    sprintf(str, "XOR A, E");
+    return;
+  case 0xAC:
+    sprintf(str, "XOR A, H");
+    return;
+  case 0xAD:
+    sprintf(str, "XOR A, L");
+    return;
+  case 0xAE:
+    sprintf(str, "XOR A, [HL]");
+    return;
+  case 0xAF:
+    sprintf(str, "XOR A, A");
+    return;
 
-    // 0xBX
-    [0xB0] = "OR A, B",
-    [0xB1] = "OR A, C",
-    [0xB2] = "OR A, D",
-    [0xB3] = "OR A, E",
-    [0xB4] = "OR A, H",
-    [0xB5] = "OR A, L",
-    [0xB6] = "OR A, [HL]",
-    [0xB7] = "OR A, A",
-    [0xB8] = "CP A, B",
-    [0xB9] = "CP A, C",
-    [0xBA] = "CP A, D",
-    [0xBB] = "CP A, E",
-    [0xBC] = "CP A, H",
-    [0xBD] = "CP A, L",
-    [0xBE] = "CP A, [HL]",
-    [0xBF] = "CP A, A",
+  // 0xBX
+  case 0xB0:
+    sprintf(str, "OR A, B");
+    return;
+  case 0xB1:
+    sprintf(str, "OR A, C");
+    return;
+  case 0xB2:
+    sprintf(str, "OR A, D");
+    return;
+  case 0xB3:
+    sprintf(str, "OR A, E");
+    return;
+  case 0xB4:
+    sprintf(str, "OR A, H");
+    return;
+  case 0xB5:
+    sprintf(str, "OR A, L");
+    return;
+  case 0xB6:
+    sprintf(str, "OR A, [HL]");
+    return;
+  case 0xB7:
+    sprintf(str, "OR A, A");
+    return;
+  case 0xB8:
+    sprintf(str, "CP A, B");
+    return;
+  case 0xB9:
+    sprintf(str, "CP A, C");
+    return;
+  case 0xBA:
+    sprintf(str, "CP A, D");
+    return;
+  case 0xBB:
+    sprintf(str, "CP A, E");
+    return;
+  case 0xBC:
+    sprintf(str, "CP A, H");
+    return;
+  case 0xBD:
+    sprintf(str, "CP A, L");
+    return;
+  case 0xBE:
+    sprintf(str, "CP A, [HL]");
+    return;
+  case 0xBF:
+    sprintf(str, "CP A, A");
+    return;
 
-    // 0xCX
-    [0xC0] = "RET NZ",
-    [0xC1] = "POP BC",
-    [0xC2] = "JP NZ, a16",
-    [0xC3] = "JP a16",
-    [0xC4] = "CALL NZ, a16",
-    [0xC5] = "PUSH BC",
-    [0xC6] = "ADD A, n8",
-    [0xC7] = "RST 0x00",
-    [0xC8] = "RET Z",
-    [0xC9] = "RET",
-    [0xCA] = "JP Z, a16",
-    [0xCB] = "PERFIX",
-    [0xCC] = "CALL Z, a16",
-    [0xCD] = "CALL a16",
-    [0xCE] = "ADC A, n8",
-    [0xCF] = "RST 0x08",
+  // 0xCX
+  case 0xC0:
+    sprintf(str, "RET NZ");
+    return;
+  case 0xC1:
+    sprintf(str, "POP BC");
+    return;
+  case 0xC2:
+    sprintf(str, "JP NZ, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xC3:
+    sprintf(str, "JP $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xC4:
+    sprintf(str, "CALL NZ, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xC5:
+    sprintf(str, "PUSH BC");
+    return;
+  case 0xC6:
+    sprintf(str, "ADD A, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xC7:
+    sprintf(str, "RST 0x00");
+    return;
+  case 0xC8:
+    sprintf(str, "RET Z");
+    return;
+  case 0xC9:
+    sprintf(str, "RET");
+    return;
+  case 0xCA:
+    sprintf(str, "JP Z, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xCB:
+    sprintf(str, "PERFIX");
+    return;
+  case 0xCC:
+    sprintf(str, "CALL Z, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xCD:
+    sprintf(str, "CALL $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xCE:
+    sprintf(str, "ADC A, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xCF:
+    sprintf(str, "RST 0x08");
+    return;
 
-    // 0xDX
-    [0xD0] = "RET NC",
-    [0xD1] = "POP DE",
-    [0xD2] = "JP NC, a16",
-    [0xD4] = "CALL NC, a16",
-    [0xD5] = "PUSH DE",
-    [0xD6] = "SUB A, n8",
-    [0xD7] = "RST 0x10",
-    [0xD8] = "RET C",
-    [0xD9] = "RETI",
-    [0xDA] = "JP C, a16",
-    [0xDC] = "CALL C, a16",
-    [0xDE] = "SBC A, A",
-    [0xDF] = "RST 0x18",
+  // 0xDX
+  case 0xD0:
+    sprintf(str, "RET NC");
+    return;
+  case 0xD1:
+    sprintf(str, "POP DE");
+    return;
+  case 0xD2:
+    sprintf(str, "JP NC, %04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xD4:
+    sprintf(str, "CALL NC, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xD5:
+    sprintf(str, "PUSH DE");
+    return;
+  case 0xD6:
+    sprintf(str, "SUB A, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xD7:
+    sprintf(str, "RST 0x10");
+    return;
+  case 0xD8:
+    sprintf(str, "RET C");
+    return;
+  case 0xD9:
+    sprintf(str, "RETI");
+    return;
+  case 0xDA:
+    sprintf(str, "JP C, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xDC:
+    sprintf(str, "CALL C, $%04X", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xDE:
+    sprintf(str, "SBC A, A");
+    return;
+  case 0xDF:
+    sprintf(str, "RST 0x18");
+    return;
 
-    // 0xEX
-    [0xE0] = "LDH [a8], A",
-    [0xE1] = "POP HL",
-    [0xE2] = "LDH [C], A",
-    [0xE5] = "PUSH HL",
-    [0xE6] = "AND A, n8",
-    [0xE7] = "RST 0x20",
-    [0xE8] = "ADD SP, e8",
-    [0xE9] = "JP HL",
-    [0xEA] = "LD [a16], A",
-    [0xEE] = "XOR A, n8",
-    [0xEF] = "RST 0x28",
+  // 0xEX
+  case 0xE0:
+    sprintf(str, "LDH [$%02X], A", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xE1:
+    sprintf(str, "POP HL");
+    return;
+  case 0xE2:
+    sprintf(str, "LDH [C], A");
+    return;
+  case 0xE5:
+    sprintf(str, "PUSH HL");
+    return;
+  case 0xE6:
+    sprintf(str, "AND A, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xE7:
+    sprintf(str, "RST 0x20");
+    return;
+  case 0xE8:
+    sprintf(str, "AND SP, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xE9:
+    sprintf(str, "JP HL");
+    return;
+  case 0xEA:
+    sprintf(str, "LD [$%04X], A", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xEE:
+    sprintf(str, "XOR A, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xEF:
+    sprintf(str, "RST 0x28");
+    return;
 
-    // 0xFX
-    [0xF0] = "LDH A, [a8]",
-    [0xF1] = "POP AF",
-    [0xF2] = "LDH A, [C]",
-    [0xF3] = "DI",
-    [0xF5] = "PUSH AF",
-    [0xF6] = "OR A, n8",
-    [0xF7] = "RST 0x30",
-    [0xF8] = "LD HL, SP + e8",
-    [0xF9] = "LD SP, HL",
-    [0xFA] = "LD A, [a16]",
-    [0xFB] = "EI",
-    [0xFE] = "CP A, n8",
-    [0xFF] = "RST 0x38",
-};
-
-char *get_instruction_string(uint8_t opcode) { return inst_to_string[opcode]; }
+  // 0xFX
+  case 0xF0:
+    sprintf(str, "LDH A, [$%04X]", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xF1:
+    sprintf(str, "POP AF");
+    return;
+  case 0xF2:
+    sprintf(str, "LDH A, [C]");
+    return;
+  case 0xF3:
+    sprintf(str, "DI");
+    return;
+  case 0xF5:
+    sprintf(str, "PUSH AF");
+    return;
+  case 0xF6:
+    sprintf(str, "OR A, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xF7:
+    sprintf(str, "RST 0x30");
+    return;
+  case 0xF8:
+    sprintf(str, "LD HL, SP + $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xF9:
+    sprintf(str, "LD SP, HL");
+    return;
+  case 0xFA:
+    sprintf(str, "LD A, [$%04X]", mmu_read16(cpu->regs.pc, mmu));
+    return;
+  case 0xFB:
+    sprintf(str, "EI");
+    return;
+  case 0xFE:
+    sprintf(str, "CP A, $%02X", mmu_read(cpu->regs.pc, mmu));
+    return;
+  case 0xFF:
+    sprintf(str, "RST 0x38");
+    return;
+  default:
+    return;
+  };
+}
 
 opfunc_t get_instruction(uint8_t opcode) { return optable[opcode]; }

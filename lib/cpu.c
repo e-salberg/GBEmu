@@ -8,10 +8,10 @@ cpu_t *cpu_init() {
   cpu_t *cpu = (cpu_t *)malloc(sizeof(cpu_t));
   cpu->regs.pc = 0x100;
   cpu->regs.sp = 0xFFFE;
-  //*((uint16_t *)&cpu->regs.a) = 0xB001;
-  //*((uint16_t *)&cpu->regs.b) = 0x1300;
-  //*((uint16_t *)&cpu->regs.d) = 0xD800;
-  //*((uint16_t *)&cpu->regs.h) = 0x4D01;
+  *((uint16_t *)&cpu->regs.a) = 0xB001;
+  *((uint16_t *)&cpu->regs.b) = 0x1300;
+  *((uint16_t *)&cpu->regs.d) = 0xD800;
+  *((uint16_t *)&cpu->regs.h) = 0x4D01;
   return cpu;
 }
 
@@ -27,7 +27,8 @@ bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
           cpu->regs.f & (1 << 5) ? 'H' : '-',
           cpu->regs.f & (1 << 4) ? 'C' : '-');
 
-  char *inst_str = get_instruction_string(opcode);
+  char inst_str[16];
+  get_instruction_string(opcode, inst_str, cpu, mmu);
 
   printf(
       "%04X: %-12s (%02X %02X %02X)\tA: %02X F: %s BC: %02X%02X DE: %02X%02X "

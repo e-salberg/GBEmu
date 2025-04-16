@@ -7,7 +7,7 @@ typedef enum { CC_NONE, CC_Z, CC_NZ, CC_C, CC_NC } condition_code;
 
 typedef void (*opfunc_t)(cpu_t *cpu, mmu_t *mmu);
 
-char *get_instruction_string(uint8_t opcode);
+void get_instruction_string(uint8_t opcode, char *str, cpu_t *cpu, mmu_t *mmu);
 opfunc_t get_instruction(uint8_t opcode);
 
 // CPU Instruction functions
