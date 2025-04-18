@@ -586,7 +586,7 @@ void get_instruction_string(uint8_t opcode, char *str, cpu_t *cpu, mmu_t *mmu) {
     sprintf(str, "RLCA");
     return;
   case 0x08:
-    sprintf(str, "LD [$%04X], SP", mmu_read(cpu->regs.pc, mmu));
+    sprintf(str, "LD [$%04X], SP", mmu_read16(cpu->regs.pc, mmu));
     return;
   case 0x09:
     sprintf(str, "ADD HL, BC");
