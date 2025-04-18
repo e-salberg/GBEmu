@@ -251,7 +251,7 @@ void push_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
 void pop_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint8_t lo = mmu_read(cpu->regs.sp++, mmu);
   // m-cycle
-  uint8_t hi = mmu_read(cpu->regs.sp++, mmu);
+  uint16_t hi = mmu_read(cpu->regs.sp++, mmu);
   // m-cycle
   uint16_t data = (hi << 8) | lo;
   register_set(rt, data, cpu);
@@ -412,23 +412,34 @@ void daa(cpu_t *cpu) {
   bool n = CHECK_BIT(cpu->regs.f, 6);
   bool h = CHECK_BIT(cpu->regs.f, 5);
 
-  if (n) {
-    if (h) {
-      cpu->regs.a -= 0x6;
-    }
-    if (c) {
-      cpu->regs.a -= 0x60;
-    }
-  } else {
-    if (h || (cpu->regs.a & 0xF) > 0x9) {
-      cpu->regs.a += 0x6;
-    }
-    if (c || cpu->regs.a > 0x99) {
-      cpu->regs.a += 0x60;
-      cf = 1;
-    }
+  uint8_t adj = 0;
+  if (h || (!n && (cpu->regs.a & 0xF) > 0x9)) {
+    adj = 6;
   }
+  if (c || (!n && cpu->regs.a > 0x99)) {
+    adj |= 0x60;
+    cf = 1;
+  }
+  cpu->regs.a += n ? -adj : adj;
   set_flags(cpu->regs.a == 0, -1, 0, cf, cpu);
+  /*
+    if (n) {
+      if (h) {
+        cpu->regs.a -= 0x6;
+      }
+      if (c) {
+        cpu->regs.a -= 0x60;
+      }
+    } else {
+      if (h || (cpu->regs.a & 0xF) > 0x9) {
+        cpu->regs.a += 0x6;
+      }
+      if (c || cpu->regs.a > 0x99) {
+        cpu->regs.a += 0x60;
+        cf = 1;
+      }
+    }
+    set_flags(cpu->regs.a == 0, -1, 0, cf, cpu);*/
 }
 
 void scf(cpu_t *cpu) { set_flags(-1, 0, 0, 1, cpu); }
@@ -536,7 +547,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
   }
   case 0b011: {
     // rr r8
-    bool c = CHECK_BIT(data, 7);
+    bool c = CHECK_BIT(data, 0);
     uint8_t result = (data >> 1) | (CHECK_BIT(cpu->regs.f, 4) << 7);
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {

@@ -27,7 +27,7 @@ bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
           cpu->regs.f & (1 << 5) ? 'H' : '-',
           cpu->regs.f & (1 << 4) ? 'C' : '-');
 
-  char inst_str[16];
+  char inst_str[20];
   get_instruction_string(opcode, inst_str, cpu, mmu);
 
   printf(

@@ -1288,7 +1288,7 @@ void get_instruction_string(uint8_t opcode, char *str, cpu_t *cpu, mmu_t *mmu) {
 
   // 0xFX
   case 0xF0:
-    sprintf(str, "LDH A, [$%04X]", mmu_read16(cpu->regs.pc, mmu));
+    sprintf(str, "LDH A, [$%02X]", mmu_read(cpu->regs.pc, mmu));
     return;
   case 0xF1:
     sprintf(str, "POP AF");
