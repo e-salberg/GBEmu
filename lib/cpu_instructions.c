@@ -303,8 +303,8 @@ void add_sp_e8(cpu_t *cpu, mmu_t *mmu) {
   // m-cycle
   uint16_t result = cpu->regs.sp + e;
   // m-cycle
-  int c = (cpu->regs.sp + e) > 0xFFFF;
-  int h = (cpu->regs.sp & 0xFF) + (e & 0xFF) > 0xFF;
+  int c = (cpu->regs.sp & 0xFF) + (e & 0xFF) > 0xFF;
+  int h = (cpu->regs.sp & 0xF) + (e & 0xF) > 0xF;
   cpu->regs.sp = result;
   set_flags(0, 0, h, c, cpu);
   // m-cycle
