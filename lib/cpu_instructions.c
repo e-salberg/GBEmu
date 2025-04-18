@@ -293,7 +293,7 @@ void add_hl_r16(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   // m-cycle
 
   int c = (hl + data) > 0xFFFF;
-  int h = (hl & 0xFF) + (data & 0xFF) > 0xFF;
+  int h = (hl & 0xFFF) + (data & 0xFFF) > 0xFFF;
   set_flags(-1, 0, h, c, cpu);
 }
 
