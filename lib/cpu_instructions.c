@@ -199,13 +199,14 @@ void ld_hl_sp_plus_imm8(cpu_t *cpu, mmu_t *mmu) {
   int8_t data = mmu_read(cpu->regs.pc++, mmu);
   // m-cycle
 
-  uint8_t h = (cpu->regs.sp & 0xF) + (data & 0xF) > 0xF;
-  uint8_t c = (cpu->regs.sp & 0xFF) + data > 0xFF;
+  int h = (cpu->regs.sp & 0xF) + (data & 0xF) > 0xF;
+  int c = (cpu->regs.sp & 0xFF) + (data & 0xFF) > 0xFF;
   // m-cycle
 
   // TODO - double check this logic
   // should be set L/get flags, cycle, set H
   register_set(RT_HL, cpu->regs.sp + data, cpu);
+  set_flags(0, 0, h, c, cpu);
 }
 
 void ld_sp_hl(cpu_t *cpu, mmu_t *mmu) {
