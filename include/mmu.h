@@ -15,6 +15,9 @@ typedef struct {
   uint8_t io_registers[0x80];
   uint8_t hram[0x80];
   uint8_t ie;
+  uint8_t interrupt_flag;
+
+  uint8_t ly;
 } mmu_t;
 
 mmu_t *mmu_init();

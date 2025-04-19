@@ -107,7 +107,7 @@ void ret(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
 }
 
 void reti(cpu_t *cpu, mmu_t *mmu) {
-  cpu->ime = true;
+  cpu->enabling_ime = true;
   ret(CC_NONE, cpu, mmu);
 }
 

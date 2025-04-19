@@ -25,6 +25,25 @@ mmu_t *mmu_init() {
 
 void mmu_load_rom(cartridge_t *cartridge, mmu_t *mmu) { mmu->cart = cartridge; }
 
+uint8_t io_read(uint16_t addr, mmu_t *mmu) {
+  if (addr == 0xFF0F) {
+    return mmu->interrupt_flag;
+  } else if (addr == 0xFF44) {
+    return mmu->ly++;
+  } else {
+    return mmu->io_registers[addr - 0xFF00];
+  }
+  return 0;
+}
+
+void io_write(uint16_t addr, uint8_t data, mmu_t *mmu) {
+  if (addr == 0xFF0F) {
+    mmu->interrupt_flag = data;
+  } else {
+    mmu->io_registers[addr - 0xFF00] = data;
+  }
+}
+
 uint8_t mmu_read(uint16_t address, mmu_t *mmu) {
   if (address < 0x4000) {
     // return mmu->rom_bank[0][address];
@@ -48,9 +67,10 @@ uint8_t mmu_read(uint16_t address, mmu_t *mmu) {
     // Reserved - Unusable
     return 0;
   } else if (address < 0xFF80) {
-    return mmu->io_registers[address - 0xFF00];
+    return io_read(address, mmu);
   } else if (address < 0xFFFF) {
-    return mmu->hram[address - 0xFF80];
+    address -= 0xFF80;
+    return mmu->hram[address];
   } else if (address == 0xFFFF) {
     return mmu->ie;
   }
@@ -80,9 +100,10 @@ void mmu_write(uint16_t address, uint8_t value, mmu_t *mmu) {
   } else if (address < 0xFF00) {
     // Reserved - Unusable
   } else if (address < 0xFF80) {
-    mmu->io_registers[address - 0xFF00] = value;
+    io_write(address, value, mmu);
   } else if (address < 0xFFFF) {
-    mmu->hram[address - 0xFF80] = value;
+    address -= 0xFF80;
+    mmu->hram[address] = value;
   } else if (address == 0xFFFF) {
     mmu->ie = value;
   } else {
