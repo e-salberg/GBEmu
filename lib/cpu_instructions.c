@@ -526,8 +526,8 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
   }
   case 0b001: {
     // rrc r8
-    bool c = CHECK_BIT(data, 7);
-    uint8_t result = (data << 1) | c;
+    bool c = CHECK_BIT(data, 0);
+    uint8_t result = (data >> 1) | (c << 7);
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {
       // m-cycle
@@ -588,6 +588,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
     if (rt == RT_HL) {
       // m-cycle
     }
+    set_flags(result == 0, 0, 0, 0, cpu);
     break;
   }
   case 0b111: {
