@@ -1,8 +1,11 @@
 #include <cpu.h>
 #include <cpu_opcodes.h>
 #include <dbg.h>
+#include <emu.h>
+#include <interrupt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <timer.h>
 
 void check_and_handle_interrupts(cpu_t *cpu, mmu_t *mmu);
 
@@ -14,6 +17,8 @@ cpu_t *cpu_init() {
   *((uint16_t *)&cpu->regs.b) = 0x1300;
   *((uint16_t *)&cpu->regs.d) = 0xD800;
   *((uint16_t *)&cpu->regs.h) = 0x4D01;
+  cpu->enabling_ime = false;
+  get_timer_context()->div = 0xABCC;
   return cpu;
 }
 
@@ -21,6 +26,7 @@ bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
   if (!cpu->is_halted) {
     uint16_t start_pc = cpu->regs.pc;
     uint8_t opcode = mmu_read(cpu->regs.pc++, mmu);
+    emu_cycle(mmu);
     opfunc_t instruction = get_instruction(opcode);
 
     char flags[16];
@@ -32,12 +38,13 @@ bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
     char inst_str[16];
     get_instruction_string(opcode, inst_str, cpu, mmu);
 
-    printf(
-        "%04X: %-16s (%02X %02X %02X)  A: %02X F: %s BC: %02X%02X DE: %02X%02X "
-        "HL: %02X%02X\n",
-        start_pc, inst_str, opcode, mmu_read(cpu->regs.pc, mmu),
-        mmu_read(cpu->regs.pc + 1, mmu), cpu->regs.a, flags, cpu->regs.b,
-        cpu->regs.c, cpu->regs.d, cpu->regs.e, cpu->regs.h, cpu->regs.l);
+    printf("%08lX - %04X: %-16s (%02X %02X %02X)  A: %02X F: %s BC: %02X%02X "
+           "DE: %02X%02X "
+           "HL: %02X%02X\n",
+           get_emu_context()->ticks, start_pc, inst_str, opcode,
+           mmu_read(cpu->regs.pc, mmu), mmu_read(cpu->regs.pc + 1, mmu),
+           cpu->regs.a, flags, cpu->regs.b, cpu->regs.c, cpu->regs.d,
+           cpu->regs.e, cpu->regs.h, cpu->regs.l);
 
     // execute instruction
     instruction(cpu, mmu);
@@ -45,7 +52,7 @@ bool cpu_step(cpu_t *cpu, mmu_t *mmu) {
     dbg_update(mmu);
     dbg_print();
   } else {
-    // m-cycle
+    emu_cycle(mmu);
     if (mmu->interrupt_flag) {
       cpu->is_halted = false;
     }
@@ -73,10 +80,10 @@ static void handle_interrupt(cpu_t *cpu, mmu_t *mmu, uint16_t addr,
   // 2 m-cycles?
   cpu->regs.sp--;
   mmu_write(cpu->regs.sp, (cpu->regs.pc >> 8) & 0xFF, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   cpu->regs.sp--;
   mmu_write(cpu->regs.sp, cpu->regs.pc & 0xFF, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   cpu->regs.pc = addr;
   mmu->interrupt_flag &= ~int_type;
   cpu->is_halted = false;

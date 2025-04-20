@@ -1,5 +1,6 @@
 #include <cpu.h>
 #include <cpu_opcodes.h>
+#include <emu.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -38,9 +39,9 @@ static bool check_condition(condition_code cond, cpu_t *cpu) {
 
 static uint16_t get_imm16_from_pc(cpu_t *cpu, mmu_t *mmu) {
   uint8_t lo = mmu_read(cpu->regs.pc++, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   uint8_t hi = mmu_read(cpu->regs.pc++, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   return (hi << 8) | lo;
 }
 
@@ -52,7 +53,7 @@ static uint8_t get_r8_or_imm8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
     data = register_read8(rt, cpu, mmu);
   }
   if (rt == RT_HL || rt == RT_NONE) {
-    // m-cycle
+    emu_cycle(mmu);
   }
   return data;
 }
@@ -61,7 +62,7 @@ void jp_addr16(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
   uint16_t addr = get_imm16_from_pc(cpu, mmu);
   if (check_condition(cond, cpu)) {
     cpu->regs.pc = addr;
-    // m-cycle
+    emu_cycle(mmu);
   }
 }
 
@@ -69,10 +70,10 @@ void jp_hl(cpu_t *cpu) { cpu->regs.pc = register_read(RT_HL, cpu); }
 
 void jr_e8(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
   int8_t e = (int8_t)mmu_read(cpu->regs.pc++, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   if (check_condition(cond, cpu)) {
     cpu->regs.pc += e;
-    // m-cycle
+    emu_cycle(mmu);
   }
 }
 
@@ -81,28 +82,28 @@ void call_imm16(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
 
   if (check_condition(cond, cpu)) {
     cpu->regs.sp--;
-    // m-cycle
+    emu_cycle(mmu);
     mmu_write(cpu->regs.sp, (cpu->regs.pc >> 8) & 0xFF, mmu);
     cpu->regs.sp--;
-    // m-cycle
+    emu_cycle(mmu);
     mmu_write(cpu->regs.sp, cpu->regs.pc & 0xFF, mmu);
-    // m-cycle
+    emu_cycle(mmu);
     cpu->regs.pc = addr;
   }
 }
 
 void ret(condition_code cond, cpu_t *cpu, mmu_t *mmu) {
   if (cond != CC_NONE) {
-    // m-cycle
+    emu_cycle(mmu);
   }
 
   if (check_condition(cond, cpu)) {
     uint8_t lo = mmu_read(cpu->regs.sp++, mmu);
-    // m-cycle
+    emu_cycle(mmu);
     uint8_t hi = mmu_read(cpu->regs.sp++, mmu);
-    // m-cycle
+    emu_cycle(mmu);
     cpu->regs.pc = (hi << 8) | lo;
-    // m-cycle
+    emu_cycle(mmu);
   }
 }
 
@@ -113,12 +114,12 @@ void reti(cpu_t *cpu, mmu_t *mmu) {
 
 void rst(uint8_t addr, cpu_t *cpu, mmu_t *mmu) {
   cpu->regs.sp--;
-  // m-cycle
+  emu_cycle(mmu);
   mmu_write(cpu->regs.sp, (cpu->regs.pc >> 8) & 0xFF, mmu);
   cpu->regs.sp--;
-  // m-cycle
+  emu_cycle(mmu);
   mmu_write(cpu->regs.sp, cpu->regs.pc & 0xFF, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   cpu->regs.pc = addr;
 }
 
@@ -130,7 +131,7 @@ void ld_r16_imm16(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
 void ld_r16mem_a(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint16_t addr = register_read(rt, cpu);
   mmu_write(addr, cpu->regs.a, mmu);
-  // m-cycle
+  emu_cycle(mmu);
 
   if (rt == RT_HLI) {
     register_set(RT_HL, addr + 1, cpu);
@@ -142,7 +143,7 @@ void ld_r16mem_a(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
 void ld_a_r16mem(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint16_t addr = register_read(rt, cpu);
   uint8_t data = mmu_read(addr, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   register_set(RT_A, data, cpu);
 
   if (rt == RT_HLI) {
@@ -155,27 +156,27 @@ void ld_a_r16mem(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
 void ld_addr16_sp(cpu_t *cpu, mmu_t *mmu) {
   uint16_t addr = get_imm16_from_pc(cpu, mmu);
   mmu_write(addr, cpu->regs.sp & 0xFF, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   mmu_write(addr + 1, (cpu->regs.sp >> 8) & 0xFF, mmu);
-  // m-cycle
+  emu_cycle(mmu);
 }
 
 void ld_addr16_a(cpu_t *cpu, mmu_t *mmu) {
   uint16_t addr = get_imm16_from_pc(cpu, mmu);
   mmu_write(addr, cpu->regs.a, mmu);
-  // m-cycle
+  emu_cycle(mmu);
 }
 
 void ld_a_addr16(cpu_t *cpu, mmu_t *mmu) {
   uint16_t addr = get_imm16_from_pc(cpu, mmu);
   uint8_t data = mmu_read(addr, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   cpu->regs.a = data;
 }
 
 void ld_r8_imm8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint8_t data = mmu_read(cpu->regs.pc++, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   register_set8(rt, data, cpu, mmu);
 }
 
@@ -187,21 +188,21 @@ void ld_r8_r8(reg_type dest, reg_type source, cpu_t *cpu, mmu_t *mmu) {
 
   uint8_t data = register_read8(source, cpu, mmu);
   if (source == RT_HL) {
-    // m-cycle
+    emu_cycle(mmu);
   }
   register_set8(dest, data, cpu, mmu);
   if (dest == RT_HL) {
-    // m-cycle
+    emu_cycle(mmu);
   }
 }
 
 void ld_hl_sp_plus_imm8(cpu_t *cpu, mmu_t *mmu) {
   int8_t data = mmu_read(cpu->regs.pc++, mmu);
-  // m-cycle
+  emu_cycle(mmu);
 
   int h = (cpu->regs.sp & 0xF) + (data & 0xF) > 0xF;
   int c = (cpu->regs.sp & 0xFF) + (data & 0xFF) > 0xFF;
-  // m-cycle
+  emu_cycle(mmu);
 
   // TODO - double check this logic
   // should be set L/get flags, cycle, set H
@@ -211,7 +212,7 @@ void ld_hl_sp_plus_imm8(cpu_t *cpu, mmu_t *mmu) {
 
 void ld_sp_hl(cpu_t *cpu, mmu_t *mmu) {
   cpu->regs.sp = register_read(RT_HL, cpu);
-  // m-cycle
+  emu_cycle(mmu);
 }
 
 void ldh_a_addr(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
@@ -220,10 +221,10 @@ void ldh_a_addr(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
     addr = 0xFF00 | cpu->regs.c;
   } else {
     addr = 0xFF00 | mmu_read(cpu->regs.pc++, mmu);
-    // m-cycle
+    emu_cycle(mmu);
   }
   cpu->regs.a = mmu_read(addr, mmu);
-  // m-cycle
+  emu_cycle(mmu);
 }
 
 void ldh_addr_a(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
@@ -232,28 +233,28 @@ void ldh_addr_a(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
     addr = 0xFF00 | cpu->regs.c;
   } else {
     addr = 0xFF00 | mmu_read(cpu->regs.pc++, mmu);
-    // m-cycle
+    emu_cycle(mmu);
   }
   mmu_write(addr, cpu->regs.a, mmu);
-  // m-cycle
+  emu_cycle(mmu);
 }
 
 void push_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint16_t data = register_read(rt, cpu);
   cpu->regs.sp--;
-  // m-cycle
+  emu_cycle(mmu);
   mmu_write(cpu->regs.sp, (data >> 8) & 0xFF, mmu);
   cpu->regs.sp--;
-  // m-cycle
+  emu_cycle(mmu);
   mmu_write(cpu->regs.sp, data & 0xFF, mmu);
-  // m-cycle
+  emu_cycle(mmu);
 }
 
 void pop_r16stk(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint8_t lo = mmu_read(cpu->regs.sp++, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   uint16_t hi = mmu_read(cpu->regs.sp++, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   uint16_t data = (hi << 8) | lo;
   register_set(rt, data, cpu);
   // TODO - how does this work with POP AF?
@@ -291,7 +292,7 @@ void add_hl_r16(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
   uint16_t result = hl + data;
   register_set(RT_HL, result, cpu);
 
-  // m-cycle
+  emu_cycle(mmu);
 
   int c = (hl + data) > 0xFFFF;
   int h = (hl & 0xFFF) + (data & 0xFFF) > 0xFFF;
@@ -301,14 +302,14 @@ void add_hl_r16(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
 // TODO - order should be set lsb(SP) -> m-cycle -> set msb(SP) -> m-cycle?
 void add_sp_e8(cpu_t *cpu, mmu_t *mmu) {
   int8_t e = (int8_t)mmu_read(cpu->regs.pc++, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   uint16_t result = cpu->regs.sp + e;
-  // m-cycle
+  emu_cycle(mmu);
   int c = (cpu->regs.sp & 0xFF) + (e & 0xFF) > 0xFF;
   int h = (cpu->regs.sp & 0xF) + (e & 0xF) > 0xF;
   cpu->regs.sp = result;
   set_flags(0, 0, h, c, cpu);
-  // m-cycle
+  emu_cycle(mmu);
 }
 
 void add_a_r8(reg_type rt, cpu_t *cpu, mmu_t *mmu) {
@@ -500,14 +501,14 @@ void res(uint8_t bit_index, reg_type rt, uint8_t data, cpu_t *cpu, mmu_t *mmu) {
   data &= ~(1 << bit_index);
   register_set8(rt, data, cpu, mmu);
   if (rt == RT_HL) {
-    // m-cycle
+    emu_cycle(mmu);
   }
 }
 void set(uint8_t bit_index, reg_type rt, uint8_t data, cpu_t *cpu, mmu_t *mmu) {
   data |= (1 << bit_index);
   register_set8(rt, data, cpu, mmu);
   if (rt == RT_HL) {
-    // m-cycle
+    emu_cycle(mmu);
   }
 }
 void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
@@ -519,7 +520,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
     uint8_t result = (data << 1) | c;
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {
-      // m-cycle
+      emu_cycle(mmu);
     }
     set_flags(result == 0, 0, 0, c, cpu);
     break;
@@ -530,7 +531,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
     uint8_t result = (data >> 1) | (c << 7);
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {
-      // m-cycle
+      emu_cycle(mmu);
     }
     set_flags(result == 0, 0, 0, c, cpu);
     break;
@@ -541,7 +542,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
     uint8_t result = (data << 1) | CHECK_BIT(cpu->regs.f, 4);
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {
-      // m-cycle
+      emu_cycle(mmu);
     }
     set_flags(result == 0, 0, 0, c, cpu);
     break;
@@ -552,7 +553,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
     uint8_t result = (data >> 1) | (CHECK_BIT(cpu->regs.f, 4) << 7);
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {
-      // m-cycle
+      emu_cycle(mmu);
     }
     set_flags(result == 0, 0, 0, c, cpu);
     break;
@@ -563,7 +564,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
     uint8_t result = (data << 1);
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {
-      // m-cycle
+      emu_cycle(mmu);
     }
     set_flags(result == 0, 0, 0, c, cpu);
     break;
@@ -576,7 +577,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
     uint8_t result = (data >> 1) | (bit7 << 7);
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {
-      // m-cycle
+      emu_cycle(mmu);
     }
     set_flags(result == 0, 0, 0, c, cpu);
     break;
@@ -586,7 +587,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
     uint8_t result = ((data & 0xF0) >> 4) | ((data & 0xF) << 4);
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {
-      // m-cycle
+      emu_cycle(mmu);
     }
     set_flags(result == 0, 0, 0, 0, cpu);
     break;
@@ -597,7 +598,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
     uint8_t result = (data >> 1);
     register_set8(rt, result, cpu, mmu);
     if (rt == RT_HL) {
-      // m-cycle
+      emu_cycle(mmu);
     }
     set_flags(result == 0, 0, 0, c, cpu);
     break;
@@ -609,7 +610,7 @@ void cb_block0(uint8_t opcode, reg_type rt, uint8_t data, cpu_t *cpu,
 
 void cb(cpu_t *cpu, mmu_t *mmu) {
   uint8_t cb_opcode = mmu_read(cpu->regs.pc++, mmu);
-  // m-cycle
+  emu_cycle(mmu);
   reg_type operand = get_cb_operand(cb_opcode & 0b111);
   uint8_t data = get_r8_or_imm8(operand, cpu, mmu);
   uint8_t bit_index = (cb_opcode >> 3) & 0b111;

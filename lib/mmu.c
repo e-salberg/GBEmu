@@ -1,6 +1,7 @@
 #include <mmu.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <timer.h>
 
 /*
     Memory Map
@@ -18,31 +19,15 @@
     0xFFFF - 0xFFFF : Interrupt Enable Register (IE)
 */
 
+uint8_t io_read(uint16_t addr, mmu_t *mmu);
+void io_write(uint16_t addr, uint8_t data, mmu_t *mmu);
+
 mmu_t *mmu_init() {
   mmu_t *mmu = (mmu_t *)malloc(sizeof(mmu_t));
   return mmu;
 }
 
 void mmu_load_rom(cartridge_t *cartridge, mmu_t *mmu) { mmu->cart = cartridge; }
-
-uint8_t io_read(uint16_t addr, mmu_t *mmu) {
-  if (addr == 0xFF0F) {
-    return mmu->interrupt_flag;
-  } else if (addr == 0xFF44) {
-    return mmu->ly++;
-  } else {
-    return mmu->io_registers[addr - 0xFF00];
-  }
-  return 0;
-}
-
-void io_write(uint16_t addr, uint8_t data, mmu_t *mmu) {
-  if (addr == 0xFF0F) {
-    mmu->interrupt_flag = data;
-  } else {
-    mmu->io_registers[addr - 0xFF00] = data;
-  }
-}
 
 uint8_t mmu_read(uint16_t address, mmu_t *mmu) {
   if (address < 0x4000) {
@@ -120,4 +105,37 @@ uint16_t mmu_read16(uint16_t address, mmu_t *mmu) {
 void mmu_write16(uint16_t address, uint16_t value, mmu_t *mmu) {
   mmu_write(address + 1, (value & 0xFF00) >> 8, mmu);
   mmu_write(address, value & 0xFF, mmu);
+}
+
+uint8_t io_read(uint16_t addr, mmu_t *mmu) {
+  switch (addr) {
+  case 0xFF04:
+  case 0xFF05:
+  case 0xFF06:
+  case 0xFF07:
+    return timer_read(addr);
+  case 0xFF0F:
+    return mmu->interrupt_flag;
+  case 0xFF44:
+    return mmu->ly++;
+  default:
+    return mmu->io_registers[addr - 0xFF00];
+  }
+}
+
+void io_write(uint16_t addr, uint8_t data, mmu_t *mmu) {
+  switch (addr) {
+  case 0xFF04:
+  case 0xFF05:
+  case 0xFF06:
+  case 0xFF07:
+    timer_write(addr, data);
+    break;
+  case 0xFF0F:
+    mmu->interrupt_flag = data;
+    break;
+  default:
+    mmu->io_registers[addr - 0xFF00] = data;
+    break;
+  }
 }

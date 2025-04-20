@@ -55,14 +55,6 @@ typedef struct {
   bool is_halted;
 } cpu_t;
 
-typedef enum {
-  IT_VBLANK = 1,
-  IT_LCD_STAT = 2,
-  IT_TIMER = 4,
-  IT_SERIAL = 8,
-  IT_JOYPAD = 16,
-} interrupt_t;
-
 cpu_t *cpu_init();
 
 bool cpu_step(cpu_t *cpu, mmu_t *mmu);
