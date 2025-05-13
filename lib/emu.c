@@ -4,6 +4,7 @@
 #include <mmu.h>
 #include <stdio.h>
 #include <timer.h>
+#include <ui.h>
 
 static emu_context emu_ctx = {0};
 
@@ -32,13 +33,27 @@ int emu_run(int argc, char **argv) {
     return -2;
   }
 
+  ui_init();
+
   timer_init();
   mmu_t *mmu = mmu_init();
   mmu_load_rom(cartridge, mmu);
 
   cpu_t *cpu = cpu_init();
 
-  return cpu_run(cpu, mmu);
+  emu_ctx.ticks = 0;
+  while (!emu_ctx.die) {
+    if (!cpu_step(cpu, mmu)) {
+      printf("CPU Stopped\n");
+      return -1;
+    }
+
+    ui_handle_events();
+    ui_update();
+  }
+
+  // return cpu_run(cpu, mmu);
+  return 0;
 }
 
 void emu_cycle(mmu_t *mmu) {
